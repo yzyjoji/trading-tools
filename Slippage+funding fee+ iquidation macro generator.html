@@ -1,0 +1,638 @@
+
+                        <!DOCTYPE html>
+                        <html lang="en">
+                        <head>
+                            <meta charset="UTF-8">
+                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+							<style>
+								body {
+									background-color: white; /* Ensure the iframe has a white background */
+								}
+
+								
+							</style>
+                        </head>
+                        <body>
+                            <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CS Macros Pro - Multi-Language</title>
+    <style>
+        /* --- CSS VARIABLES --- */
+        :root {
+            --bg-body: #121418;
+            --bg-card: #1e2329;
+            --bg-input: #2b3139;
+            --accent: #F0B90B;
+            --accent-hover: #D0A009;
+            --text-main: #EAECEF;
+            --text-sub: #848E9C;
+            --border: #474d57;
+            --error-bg: rgba(255, 107, 107, 0.1);
+            --error-text: #ff6b6b;
+            --success: #0ECB81;
+            --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        * { box-sizing: border-box; }
+
+        body { 
+            background-color: var(--bg-body);
+            font-family: var(--font);
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding-top: 40px;
+            padding-bottom: 40px;
+        }
+
+        .app-wrapper { width: 100%; max-width: 800px; animation: slideUp 0.4s ease-out; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* --- HEADER --- */
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding: 0 5px; }
+        h1 { font-size: 24px; font-weight: 700; color: var(--accent); margin: 0; letter-spacing: -0.5px; }
+        .reset-link { font-size: 13px; color: var(--text-sub); cursor: pointer; text-decoration: none; transition: 0.2s; display: flex; align-items: center; gap: 5px; }
+        .reset-link:hover { color: var(--text-main); }
+
+        /* --- TABS --- */
+        .tabs { display: flex; width: 100%; margin-bottom: 0; }
+        .tab-btn { flex: 1; padding: 16px; background: var(--bg-card); border: none; border-bottom: 2px solid var(--border); color: var(--text-sub); font-weight: 600; font-size: 14px; cursor: pointer; transition: all 0.2s ease; }
+        .tab-btn:hover { background: #252b33; color: var(--text-main); }
+        .tab-btn.active { color: var(--accent); border-bottom: 2px solid var(--accent); }
+
+        /* --- MAIN CARD --- */
+        .tool-container { background: var(--bg-card); padding: 30px; border-radius: 0 0 8px 8px; box-shadow: 0 10px 20px rgba(0,0,0,0.2); display: none; }
+        .tool-container.active { display: block; }
+
+        /* --- INPUTS --- */
+        label { display: block; font-size: 12px; font-weight: 700; color: var(--text-sub); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        textarea, input[type="text"], input[type="number"] { 
+            width: 100%; background: var(--bg-input); color: var(--text-main); 
+            border: 1px solid transparent; border-radius: 6px; padding: 12px; 
+            font-family: 'Roboto Mono', monospace; font-size: 13px; 
+            transition: 0.2s; outline: none; 
+        }
+        
+        /* Editable Table Inputs */
+        input.table-input {
+            background: #161a1e; border: 1px solid #333; padding: 6px; text-align: right; width: 110px; font-size: 12px; color: var(--accent);
+        }
+        input.table-input:focus { border-color: var(--accent); }
+
+        textarea:focus, input:focus { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(240, 185, 11, 0.1); }
+
+        /* --- LANGUAGE SELECT --- */
+        select.lang-select {
+            width: 100%; background: var(--bg-input); color: var(--accent);
+            border: 1px solid var(--border); padding: 10px; border-radius: 6px;
+            font-weight: bold; margin-bottom: 15px; cursor: pointer; outline: none;
+        }
+        select.lang-select:hover { border-color: var(--accent); }
+
+        /* --- BUTTONS --- */
+        .primary-btn { width: 100%; background: var(--accent); color: #1e2329; border: none; padding: 14px; border-radius: 6px; font-size: 14px; font-weight: 700; cursor: pointer; margin-top: 15px; transition: transform 0.1s, background 0.2s; }
+        .primary-btn:hover { background: var(--accent-hover); }
+        .primary-btn:active { transform: scale(0.99); }
+        .primary-btn:disabled { background: var(--text-sub); cursor: not-allowed; }
+
+        .copy-btn { background: var(--bg-input); color: var(--text-main); border: 1px solid var(--border); padding: 10px 20px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; transition: 0.2s; margin-top: 10px; width: 100%; }
+        .copy-btn:hover { background: var(--border); }
+
+        .external-link-btn { background: transparent; border: 1px solid var(--text-sub); color: var(--text-sub); font-size: 12px; padding: 5px 10px; border-radius: 4px; cursor: pointer; text-decoration: none; display: inline-block; margin-top: 5px; }
+        .external-link-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+        /* --- DATA TABLE --- */
+        .mini-table { width: 100%; margin-top: 15px; font-size: 13px; border-collapse: collapse; }
+        .mini-table th { padding: 10px; background: var(--bg-input); color: var(--text-sub); text-align: left; border-bottom: 1px solid var(--border); }
+        .mini-table td { padding: 10px; border-bottom: 1px solid #333; text-align: left; color: var(--text-main); }
+        
+        /* --- RESULTS AREA --- */
+        .result-box { margin-top: 25px; padding-top: 20px; border-top: 1px solid var(--border); display: none; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* --- ERROR MSG --- */
+        .error-box { background: var(--error-bg); color: var(--error-text); padding: 12px; border-radius: 6px; font-size: 13px; margin-top: 10px; display: none; font-weight: 600; }
+
+        /* --- TOAST --- */
+        #toast { visibility: hidden; min-width: 250px; background-color: var(--success); color: #fff; text-align: center; border-radius: 4px; padding: 12px; position: fixed; z-index: 100; left: 50%; top: 20px; transform: translateX(-50%); box-shadow: 0 5px 15px rgba(0,0,0,0.3); font-weight: 600; font-size: 14px; opacity: 0; transition: opacity 0.3s, top 0.3s; }
+        #toast.show { visibility: visible; opacity: 1; top: 40px; }
+        
+        .val-highlight { color: var(--accent); font-weight: bold; }
+        .fee-cell { color: var(--accent); font-weight: bold; text-align: right; }
+        input[type="radio"] { accent-color: var(--accent); cursor: pointer; width: 16px; height: 16px; }
+    </style>
+</head>
+<body>
+
+    <div id="toast">Text Copied!</div>
+
+    <div class="app-wrapper">
+        <div class="header">
+            <h1>CS Macros Pro</h1>
+            <a href="#" class="reset-link" onclick="resetAll()">Reset All</a>
+        </div>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('tabSlippage', this)">Stop Market Slippage</button>
+            <button class="tab-btn" onclick="switchTab('tabLiquidation', this)">Liquidation</button>
+            <button class="tab-btn" onclick="switchTab('tabFunding', this)">Funding Fee</button>
+        </div>
+
+        <!-- SLIPPAGE TOOL -->
+        <div id="tabSlippage" class="tool-container active">
+            <label>Paste Stop Market Data Row</label>
+            <textarea id="slipInput" rows="3" placeholder="Paste the full row with 12+ columns..."></textarea>
+            <div id="slipError" class="error-box"></div>
+            <button class="primary-btn" onclick="processSlippage()">Process Data</button>
+            
+            <div id="slipResult" class="result-box">
+                <label>Extracted Data</label>
+                <table class="mini-table">
+                    <tr><th>Quantity</th><td id="tQty"></td></tr>
+                    <tr><th>Total USDT</th><td id="tUsdt"></td></tr>
+                    <tr><th>Stop Price</th><td id="tStop" class="val-highlight"></td></tr>
+                    <tr><th>Executed Price</th><td id="tExec" class="val-highlight"></td></tr>
+                </table>
+                
+                <div style="margin-top:20px;">
+                    <label>Language</label>
+                    <select id="slipLang" class="lang-select" onchange="updateSlippageLang()">
+                        <option value="en">English</option>
+                        <option value="ar">Arabic (العربية)</option>
+                        <option value="zh">Chinese (中文)</option>
+                        <option value="tr">Turkish (Türkçe)</option>
+                        <option value="pt">Portuguese (Português)</option>
+                        <option value="es">Spanish (Español)</option>
+                        <option value="ko">Korean (한국어)</option>
+                        <option value="ru">Russian (Русский)</option>
+                    </select>
+                    <label>Generated Macro</label>
+                    <textarea id="slipOutput" rows="10" readonly></textarea>
+                    <button class="copy-btn" onclick="copyToClipboard('slipOutput')">Copy Macro</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- LIQUIDATION TOOL -->
+        <div id="tabLiquidation" class="tool-container">
+            <label>Paste Liquidation Data Row</label>
+            <textarea id="liqInput" rows="3" placeholder="Paste liquidation data row..."></textarea>
+            <div id="liqError" class="error-box"></div>
+            <button class="primary-btn" onclick="processLiquidation()">Process Data</button>
+            
+            <div id="liqResult" class="result-box">
+                <label>Language</label>
+                <select id="liqLang" class="lang-select" onchange="updateLiquidationLang()">
+                    <option value="en">English</option>
+                    <option value="ar">Arabic (العربية)</option>
+                    <option value="zh">Chinese (中文)</option>
+                    <option value="tr">Turkish (Türkçe)</option>
+                    <option value="pt">Portuguese (Português)</option>
+                    <option value="es">Spanish (Español)</option>
+                    <option value="ko">Korean (한국어)</option>
+                    <option value="ru">Russian (Русский)</option>
+                </select>
+
+                <label>Generated Macro</label>
+                <textarea id="liqOutput" rows="12" readonly></textarea>
+                <button class="copy-btn" onclick="copyToClipboard('liqOutput')">Copy Macro</button>
+            </div>
+        </div>
+
+        <!-- FUNDING FEE TOOL -->
+        <div id="tabFunding" class="tool-container">
+            <label>1. Lookup & Generate (Binance API)</label>
+            <div class="api-lookup-wrapper">
+                <div class="input-group">
+                    <input type="text" id="fundSymbol" placeholder="Symbol (e.g. BTCUSDT)" value="BTCUSDT" style="flex:1;">
+                    <input type="number" id="fundQty" placeholder="Quantity" step="any" style="flex:1;" oninput="updateCalculations()">
+                    <button id="apiBtn" class="primary-btn" style="margin-top:0; width:100px;" onclick="fetchFundingRates()">Check</button>
+                </div>
+                <div id="apiError" class="error-box" style="margin-bottom:10px;"></div>
+                
+                <table class="mini-table" id="fundTable" style="display:none;">
+                    <thead>
+                        <tr>
+                            <th style="width:40px;">Select</th>
+                            <th>Time (UTC)</th>
+                            <th>Mark Price (Edit)</th>
+                            <th>Rate</th>
+                            <th style="color:var(--accent);">Est. Fee</th>
+                        </tr>
+                    </thead>
+                    <tbody id="fundTableBody"></tbody>
+                </table>
+                <div style="font-size:10px; color:var(--text-sub); margin-top:5px; text-align:right;">* Mark Price retrieved from historical candle Open (Snapshot).</div>
+                <a href="https://www.binance.com/en/futures/funding-history/perpetual/real-time-funding-rate" target="_blank" class="external-link-btn">View Full History on Binance &#8599;</a>
+            </div>
+
+            <!-- Result Box -->
+            <div id="fundResult" class="result-box">
+                <label>Language</label>
+                <select id="fundLang" class="lang-select" onchange="updateFundingLang()">
+                    <option value="en">English</option>
+                    <option value="ar">Arabic (العربية)</option>
+                    <option value="zh">Chinese (中文)</option>
+                    <option value="tr">Turkish (Türkçe)</option>
+                    <option value="pt">Portuguese (Português)</option>
+                    <option value="es">Spanish (Español)</option>
+                    <option value="ko">Korean (한국어)</option>
+                    <option value="ru">Russian (Русский)</option>
+                </select>
+
+                <label>Generated Macro</label>
+                <textarea id="fundOutput" rows="15" readonly></textarea>
+                <button class="copy-btn" onclick="copyToClipboard('fundOutput')">Copy Macro</button>
+            </div>
+        </div>
+
+    </div>
+
+<script>
+    // --- TRANSLATION ENGINE (FULL LENGTH) ---
+    const TRANS = {
+        en: {
+            slip: (stop, exec) => `The loss occurred on your order because you placed a Stop Market order and not a Stop Limit order.\n\nThe estimated PNL you see while placing an order is only estimated and the end result will depend on the market conditions.\n\nThe situation you are experiencing with the Stop Market order is due to the way your stop market order works. A Stop Market (SL) order creates a market order to close your position at the current market price when the stop price you set is reached.\n\nIn your example, the stop price was set at ${stop} USDT but the executed price was ${exec} USDT.\n\nThis is due to market movement and the type of order you created. This means that ${stop} is the price at which the market order will be triggered, not the price at which the order will be executed.\n\nYou can find all information about the different order types here:\nhttps://www.binance.com/en/support/faq/types-of-order-on-binance-futures-360033779452`,
+            liq: (mm, wb, pnl, mb) => `Thank you very much for your patience, I truly appreciate your kindness.\n\nFirst, please note that a liquidation is triggered when the margin balance (wallet balance – unrealized PNL) falls below the Maintenance Margin required to keep the position open.\n\nIn your case:\n• The required Maintenance Margin was: ${mm} USDT\n• Your wallet balance at the time of liquidation was: ${wb} USDT\n• Your unrealized loss on the position was: ${pnl} USDT\n\nThis means your margin balance became:\n${mb} USDT, which was below the ${mm} USDT needed to maintain the position.\n\nUnfortunately, this triggered an automatic liquidation.\n\nI have thoroughly reviewed this, and the liquidation occurred according to Binance Futures protocols, and there were no abnormalities detected. I understand this is not the outcome you were hoping for, and I am truly sorry for your loss.\n\nLiquidation protocol:\nhttps://www.binance.com/en/support/faq/detail/360033525271`,
+            fund: (qty, price, rate, fee, isPos) => {
+                const logic = isPos 
+                    ? "Since the funding rate is positive, meaning you paid the short position holders the funding fee.\nIf you had the opposite position you would have received the same amount."
+                    : "Since the funding rate is negative, meaning you paid the long position holders the funding fee.\nIf you had the opposite position you would have received the same amount.";
+                return `Let me explain what the funding payment is : \nFirstly, please kindly note that Binance takes no fees for Funding Rate transfers; these are directly between traders.\nFunding rates are periodic payments made to either long or short traders, calculated based on the difference between the perpetual contract prices and spot prices.\n\nIf the funding rate is negative : Short positions will pay traders who have a long position \nIf the funding rate is positive : Long positions will pay positions who have a short position \n\nThe funding rate is always shown on the trading interface and if you click on it - while having a position you can get an approximation of how much you will pay or receive if you keep your position open. \n\n${logic}\n\nYou can also close your position right before the payment in order to avoid paying it, there is a countdown on the trading interface dear.\n\nBefore you enter any trade please check the funding rate data to make sure it suits your trading strategies.\n\nFunding for USDS-M futures is calculated as:\nFunding Amount = Nominal Value of Positions × Funding Rate\nNominal Value of Positions = Mark Price x Size of a Contract\n\nCalculation for this payment:\n${qty} (Quantity) x ${price} (Mark Price) x ${rate} (Rate) = ${fee} USDT`;
+            }
+        },
+        ar: {
+            slip: (stop, exec) => `حدثت الخسارة في طلبك لأنك قمت بوضع أمر إيقاف السوق (Stop Market) وليس أمر إيقاف الحد (Stop Limit).\n\nالربح والخسارة المقدر الذي تراه أثناء وضع الطلب هو تقديري فقط وستعتمد النتيجة النهائية على ظروف السوق.\n\nالوضع الذي تواجهه مع أمر إيقاف السوق يرجع إلى طريقة عمل أمر إيقاف السوق الخاص بك. يقوم أمر إيقاف السوق بإنشاء أمر سوق لإغلاق مركزك بسعر السوق الحالي عند الوصول إلى سعر الإيقاف الذي حددته.\n\nفي مثالك، تم تعيين سعر الإيقاف عند ${stop} USDT ولكن السعر المنفذ كان ${exec} USDT.\n\nهذا يرجع إلى حركة السوق ونوع الأمر الذي قمت بإنشائه. هذا يعني أن ${stop} هو السعر الذي سيتم عنده تفعيل أمر السوق، وليس السعر الذي سيتم تنفيذ الأمر به.\n\nيمكنك العثور على جميع المعلومات حول أنواع الطلبات المختلفة هنا:\nhttps://www.binance.com/en/support/faq/types-of-order-on-binance-futures-360033779452`,
+            liq: (mm, wb, pnl, mb) => `شكراً جزيلاً لصبرك، أقدر لطفك حقاً.\n\nأولاً، يرجى ملاحظة أن التصفية يتم تفعيلها عندما ينخفض رصيد الهامش (رصيد المحفظة - الخسارة غير المحققة) إلى أقل من هامش الصيانة المطلوب لإبقاء المركز مفتوحاً.\n\nفي حالتك:\n• كان هامش الصيانة المطلوب: ${mm} USDT\n• كان رصيد محفظتك وقت التصفية: ${wb} USDT\n• كانت خسارتك غير المحققة في المركز: ${pnl} USDT\n\nهذا يعني أن رصيد الهامش الخاص بك أصبح:\n${mb} USDT، وهو أقل من ${mm} USDT المطلوبة للحفاظ على المركز.\n\nللاسف، أدى هذا إلى تفعيل تصفية تلقائية. لقد راجعت هذا الأمر بدقة، وحدثت التصفية وفقاً لبروتوكولات Binance Futures ولم يتم اكتشاف أي خلل. أتفهم أن هذه ليست النتيجة التي كنت تأملها، وأنا آسف حقاً لخسارتك.\n\nبروتوكول التصفية:\nhttps://www.binance.com/en/support/faq/detail/360033525271`,
+            fund: (qty, price, rate, fee, isPos) => {
+                const logic = isPos 
+                    ? "بما أن معدل التمويل إيجابي، فهذا يعني أنك دفعت رسوم التمويل لأصحاب مراكز البيع (Short).\nلو كان لديك المركز المعاكس لكنت قد استلمت نفس المبلغ."
+                    : "بما أن معدل التمويل سلبي، فهذا يعني أنك دفعت رسوم التمويل لأصحاب مراكز الشراء (Long).\nلو كان لديك المركز المعاكس لكنت قد استلمت نفس المبلغ.";
+                return `اسمح لي بشرح ماهية دفعات التمويل:\nأولاً، يرجى العلم أن Binance لا تفرض أي رسوم على تحويلات معدل التمويل؛ فهي تتم مباشرة بين المتداولين.\nمعدلات التمويل هي مدفوعات دورية تتم إما للمتداولين الذين لديهم مراكز شراء أو بيع، ويتم حسابها بناءً على الفرق بين أسعار العقود الآجلة والأسعار الفورية.\n\n• إذا كان معدل التمويل سلبياً: يدفع أصحاب مراكز البيع (Short) للمتداولين الذين لديهم مركز شراء (Long).\n• إذا كان معدل التمويل إيجابياً: يدفع أصحاب مراكز الشراء (Long) للمتداولين الذين لديهم مركز بيع (Short).\n\nيظهر معدل التمويل دائماً على واجهة التداول، وإذا نقرت عليه - أثناء وجود مركز مفتوح - يمكنك الحصول على تقدير للمبلغ الذي ستدفعه أو ستتلقاه إذا أبقيت مركزك مفتوحاً.\n\n${logic}\n\nيمكنك أيضاً إغلاق مركزك قبل الدفع مباشرة لتجنب دفعه، ويوجد عد تنازلي على واجهة التداول.\n\nقبل الدخول في أي صفقة، يرجى التحقق من بيانات معدل التمويل للتأكد من أنها تناسب استراتيجيات التداول الخاصة بك.\n\nحساب هذه الدفعة:\n${qty} (الكمية) x ${price} (سعر العلامة) x ${rate} (المعدل) = ${fee} USDT`;
+            }
+        },
+        zh: {
+            slip: (stop, exec) => `您的亏损是因为您下了止损市价单（Stop Market），而不是止损限价单（Stop Limit）。\n\n您下单时看到的预估盈亏仅为估算值，最终结果将取决于市场情况。\n\n您遇到的情况是由于止损市价单的运作方式造成的。当达到您设定的触发价格时，止损市价单会生成一个市价单，以当前市场价格平仓。\n\n在您的例子中，触发价格设为 ${stop} USDT，但成交价格为 ${exec} USDT。\n\n这是由于市场波动和您创建的订单类型造成的。这意味着 ${stop} 是触发市价单的价格，而不是订单最终成交的价格。\n\n您可以在此处找到有关不同订单类型的所有信息：\nhttps://www.binance.com/en/support/faq/types-of-order-on-binance-futures-360033779452`,
+            liq: (mm, wb, pnl, mb) => `非常感谢您的耐心等待，我非常感谢您的理解。\n\n首先，请注意，当保证金余额（钱包余额 - 未实现盈亏）低于维持仓位所需的维持保证金时，就会触发强平。\n\n在您的情况下：\n• 所需的维持保证金为：${mm} USDT\n• 强平时的钱包余额为：${wb} USDT\n• 仓位的未实现亏损为：${pnl} USDT\n\n这意味着您的保证金余额变成了：\n${mb} USDT，低于维持仓位所需的 ${mm} USDT。\n\n遗憾的是，这触发了自动强平。我已经对此进行了彻底审查，强平是按照币安合约协议进行的，未发现任何异常。我理解这不是您希望看到的结果，对于您的损失，我深表遗憾。\n\n强平协议：\nhttps://www.binance.com/en/support/faq/detail/360033525271`,
+            fund: (qty, price, rate, fee, isPos) => {
+                const logic = isPos 
+                    ? "由于资金费率为正，意味着您向空头持仓者支付了资金费。\n如果您持有相反的头寸，您将收到相同的金额。"
+                    : "由于资金费率为负，意味着您向多头持仓者支付了资金费。\n如果您持有相反的头寸，您将收到相同的金额。";
+                return `让我解释一下什么是资金费用：\n首先，请注意 Binance 不收取资金费率转账的费用；这些费用直接在交易者之间进行。\n资金费率是多头或空头交易者之间的定期支付，基于永续合约价格与现货价格之间的差异计算。\n\n• 如果资金费率为负：空头头寸向多头头寸支付。\n• 如果资金费率为正：多头头寸向空头头寸支付。\n\n资金费率始终显示在交易界面上，如果您点击它 - 在持有仓位时 - 您可以大致了解如果您保持仓位开放将支付或收到的金额。\n\n${logic}\n\n您也可以在支付前关闭仓位以避免支付该费用，交易界面上有倒计时。\n\n在进入任何交易之前，请检查资金费率数据，以确保其符合您的交易策略。\n\n此笔费用计算：\n${qty} (数量) x ${price} (标记价格) x ${rate} (费率) = ${fee} USDT`;
+            }
+        },
+        es: {
+            slip: (stop, exec) => `La pérdida en su orden ocurrió porque colocó una orden Stop Market y no una orden Stop Limit.\n\nEl PNL estimado que ve al colocar una orden es solo una estimación y el resultado final dependerá de las condiciones del mercado.\n\nLa situación que está experimentando se debe a cómo funciona su orden de stop market. Una orden Stop Market (SL) crea una orden de mercado para cerrar su posición al precio de mercado actual cuando se alcanza el precio de stop que estableció.\n\nEn su ejemplo, el precio de stop se estableció en ${stop} USDT, pero el precio ejecutado fue ${exec} USDT.\n\nEsto se debe al movimiento del mercado y al tipo de orden que creó. Esto significa que ${stop} es el precio al que se activará la orden de mercado, no el precio al que se ejecutará la orden.\n\nPuede encontrar toda la información sobre los diferentes tipos de órdenes aquí:\nhttps://www.binance.com/en/support/faq/types-of-order-on-binance-futures-360033779452`,
+            liq: (mm, wb, pnl, mb) => `Muchas gracias por su paciencia, realmente aprecio su amabilidad.\n\nPrimero, tenga en cuenta que la liquidación se activa cuando el saldo de margen (saldo de billetera – PNL no realizado) cae por debajo del Margen de Mantenimiento requerido para mantener la posición abierta.\n\nEn su caso:\n• El Margen de Mantenimiento requerido era: ${mm} USDT\n• Su saldo de billetera al momento de la liquidación era: ${wb} USDT\n• Su pérdida no realizada en la posición era: ${pnl} USDT\n\nEsto significa que su saldo de margen se convirtió en:\n${mb} USDT, lo cual estaba por debajo de los ${mm} USDT necesarios para mantener la posición.\n\nLamentablemente, esto activó una liquidación automática. He revisado esto exhaustivamente y la liquidación ocurrió de acuerdo con los protocolos de Binance Futures y no se detectaron anomalías. Entiendo que este no es el resultado que esperaba y lamento mucho su pérdida.\n\nProtocolo de liquidación:\nhttps://www.binance.com/en/support/faq/detail/360033525271`,
+            fund: (qty, price, rate, fee, isPos) => {
+                const logic = isPos 
+                    ? "Dado que la tasa de financiación es positiva, significa que usted pagó la tarifa de financiación a los titulares de posiciones cortas.\nSi hubiera tenido la posición opuesta, habría recibido la misma cantidad." 
+                    : "Dado que la tasa de financiación es negativa, significa que usted pagó la tarifa de financiación a los titulares de posiciones largas.\nSi hubiera tenido la posición opuesta, habría recibido la misma cantidad.";
+                return `Permítame explicar qué es el pago de financiación:\nPrimero, tenga en cuenta que Binance no cobra tarifas por las transferencias de Tasa de Financiación; estas son directamente entre comerciantes.\nLas tasas de financiación son pagos periódicos realizados a comerciantes largos o cortos, calculados en función de la diferencia entre los precios del contrato perpetuo y los precios al contado.\n\n• Si la tasa de financiación es negativa: Las posiciones cortas pagarán a los comerciantes que tienen una posición larga.\n• Si la tasa de financiación es positiva: Las posiciones largas pagarán a las posiciones que tienen una posición corta.\n\nLa tasa de financiación siempre se muestra en la interfaz de negociación y, si hace clic en ella mientras tiene una posición, puede obtener una aproximación de cuánto pagará o recibirá si mantiene su posición abierta.\n\n${logic}\n\nTambién puede cerrar su posición justo antes del pago para evitar pagarlo; hay una cuenta regresiva en la interfaz de trading.\n\nCálculo para este pago:\n${qty} (Cantidad) x ${price} (Precio de Marca) x ${rate} (Tasa) = ${fee} USDT`;
+            }
+        },
+        pt: {
+            slip: (stop, exec) => `A perda ocorreu porque você colocou uma ordem Stop Market e não uma ordem Stop Limit.\n\nO PNL estimado que você vê ao colocar uma ordem é apenas uma estimativa e o resultado final dependerá das condições do mercado.\n\nA situação que você está enfrentando deve-se à maneira como sua ordem Stop Market funciona. Uma ordem Stop Market (SL) cria uma ordem a mercado para fechar sua posição ao preço de mercado atual quando o preço de stop que você definiu é atingido.\n\nEm seu exemplo, o preço de stop foi definido em ${stop} USDT, mas o preço executado foi ${exec} USDT.\n\nIsso se deve ao movimento do mercado e ao tipo de ordem que você criou. Isso significa que ${stop} é o preço no qual a ordem de mercado será acionada, não o preço no qual a ordem será executada.\n\nVocê pode encontrar todas as informações sobre os diferentes tipos de ordem aqui:\nhttps://www.binance.com/en/support/faq/types-of-order-on-binance-futures-360033779452`,
+            liq: (mm, wb, pnl, mb) => `Muito obrigado pela sua paciência, eu realmente aprecio sua gentileza.\n\nPrimeiro, observe que uma liquidação é acionada quando o saldo de margem (saldo de carteira – PNL não realizado) cai abaixo da Margem de Manutenção necessária para manter a posição aberta.\n\nNo seu caso:\n• A Margem de Manutenção necessária era: ${mm} USDT\n• Seu saldo de carteira no momento da liquidação era: ${wb} USDT\n• Sua perda não realizada na posição era: ${pnl} USDT\n\nIsso significa que seu saldo de margem tornou-se:\n${mb} USDT, o que estava abaixo dos ${mm} USDT necessários para manter a posição.\n\nInfelizmente, isso acionou uma liquidação automática. Eu revisei isso minuciosamente e a liquidação ocorreu de acordo com os protocolos da Binance Futures e nenhuma anormalidade foi detectada. Entendo que esse não é o resultado que você esperava e sinto muito pela sua perda.\n\nProtocolo de liquidação:\nhttps://www.binance.com/en/support/faq/detail/360033525271`,
+            fund: (qty, price, rate, fee, isPos) => {
+                const logic = isPos 
+                    ? "Como a taxa de financiamento é positiva, significa que você pagou a taxa aos detentores de posições Short.\nSe você tivesse a posição oposta, teria recebido o mesmo valor." 
+                    : "Como a taxa de financiamento é negativa, significa que você pagou a taxa aos detentores de posições Long.\nSe você tivesse a posição oposta, teria recebido o mesmo valor.";
+                return `Deixe-me explicar o que é o pagamento de financiamento:\nPrimeiro, observe que a Binance não cobra taxas pelas transferências de Taxa de Financiamento; elas são diretamente entre traders.\nAs taxas de financiamento são pagamentos periódicos feitos a traders long ou short, calculados com base na diferença entre os preços do contrato perpétuo e os preços à vista.\n\n• Se a taxa de financiamento for negativa: Posições Short pagam traders que têm uma posição Long.\n• Se a taxa de financiamento for positiva: Posições Long pagam posições que têm uma posição Short.\n\nA taxa de financiamento é sempre mostrada na interface de negociação e, se você clicar nela enquanto tiver uma posição, poderá obter uma estimativa de quanto pagará ou receberá se mantiver sua posição aberta.\n\n${logic}\n\nVocê também pode fechar sua posição logo antes do pagamento para evitar pagá-lo; há uma contagem regressiva na interface de negociação.\n\nCálculo para este pagamento:\n${qty} (Quantidade) x ${price} (Preço de Marca) x ${rate} (Taxa) = ${fee} USDT`;
+            }
+        },
+        tr: {
+            slip: (stop, exec) => `Kaybınız, Stop Limit emri yerine Stop Market emri vermenizden kaynaklanmaktadır.\n\nEmir verirken gördüğünüz tahmini PNL sadece bir tahmindir ve nihai sonuç piyasa koşullarına bağlı olacaktır.\n\nYaşadığınız durum, Stop Market emrinin çalışma şeklinden kaynaklanmaktadır. Bir Stop Market (SL) emri, belirlediğiniz stop fiyatına ulaşıldığında pozisyonunuzu mevcut piyasa fiyatından kapatmak için bir piyasa emri oluşturur.\n\nÖrneğinizde, stop fiyatı ${stop} USDT olarak ayarlanmıştı ancak gerçekleşen fiyat ${exec} USDT oldu.\n\nBu, piyasa hareketi ve oluşturduğunuz emir türünden kaynaklanmaktadır. Bu, ${stop} fiyatının emrin tetikleneceği fiyat olduğu, emrin gerçekleşeceği fiyat olmadığı anlamına gelir.\n\nFarklı emir türleri hakkında tüm bilgileri burada bulabilirsiniz:\nhttps://www.binance.com/en/support/faq/types-of-order-on-binance-futures-360033779452`,
+            liq: (mm, wb, pnl, mb) => `Sabrınız için çok teşekkür ederim, nezaketinizi takdir ediyorum.\n\nÖncelikle, marjin bakiyesi (cüzdan bakiyesi – gerçekleşmemiş PNL), pozisyonu açık tutmak için gereken Sürdürme Marjininin altına düştüğünde likidasyonun tetiklendiğini lütfen unutmayın.\n\nSizin durumunuzda:\n• Gerekli Sürdürme Marjini: ${mm} USDT\n• Likidasyon sırasındaki cüzdan bakiyeniz: ${wb} USDT\n• Pozisyondaki gerçekleşmemiş zararınız: ${pnl} USDT\n\nBu, marjin bakiyenizin:\n${mb} USDT olduğu ve pozisyonu sürdürmek için gereken ${mm} USDT'nin altında kaldığı anlamına gelir.\n\nMaalesef bu durum otomatik bir likidasyonu tetikledi. Bunu kapsamlı bir şekilde inceledim ve likidasyon Binance Vadeli İşlemler protokollerine göre gerçekleşti ve herhangi bir anormallik tespit edilmedi. Bunun umduğunuz sonuç olmadığını anlıyorum ve kaybınız için gerçekten üzgünüm.\n\nLikidasyon protokolü:\nhttps://www.binance.com/en/support/faq/detail/360033525271`,
+            fund: (qty, price, rate, fee, isPos) => {
+                const logic = isPos 
+                    ? "Fonlama oranı pozitif olduğundan, Short pozisyon sahiplerine fonlama ücreti ödediniz.\nEğer tersi pozisyonda olsaydınız, aynı tutarı alacaktınız." 
+                    : "Fonlama oranı negatif olduğundan, Long pozisyon sahiplerine fonlama ücreti ödediniz.\nEğer tersi pozisyonda olsaydınız, aynı tutarı alacaktınız.";
+                return `Fonlama ödemesinin ne olduğunu açıklamama izin verin:\nÖncelikle, Binance'in Fonlama Oranı transferlerinden ücret almadığını lütfen unutmayın; bunlar doğrudan yatırımcılar arasındadır.\nFonlama oranları, sürekli sözleşme fiyatları ile spot fiyatlar arasındaki farka göre hesaplanan, long veya short yatırımcılara yapılan periyodik ödemelerdir.\n\n• Fonlama oranı negatifse: Short pozisyonlar, Long pozisyonu olan yatırımcılara ödeme yapar.\n• Fonlama oranı pozitifse: Long pozisyonlar, Short pozisyonu olan yatırımcılara ödeme yapar.\n\nFonlama oranı her zaman işlem arayüzünde gösterilir ve bir pozisyonunuz varken üzerine tıklarsanız, pozisyonunuzu açık tutmanız durumunda ne kadar ödeyeceğiniz veya alacağınıza dair bir tahmin alabilirsiniz.\n\n${logic}\n\nÖdemeyi yapmamak için ödeme saatinden hemen önce pozisyonunuzu kapatabilirsiniz; işlem arayüzünde bir geri sayım vardır.\n\nHerhangi bir işleme girmeden önce, işlem stratejilerinize uygun olduğundan emin olmak için lütfen fonlama oranı verilerini kontrol edin.\n\nBu ödeme için hesaplama:\n${qty} (Miktar) x ${price} (Gösterge Fiyatı) x ${rate} (Oran) = ${fee} USDT`;
+            }
+        },
+        ru: {
+            slip: (stop, exec) => `Убыток по вашему ордеру произошел потому, что вы разместили Стоп-маркет ордер (Stop Market), а не Стоп-лимит (Stop Limit).\n\nРасчетный PNL, который вы видите при размещении ордера, является лишь приблизительным, и конечный результат будет зависеть от рыночных условий.\n\nСитуация связана с тем, как работает стоп-маркет ордер. Когда достигается установленная вами стоп-цена, создается рыночный ордер для закрытия позиции по текущей рыночной цене.\n\nВ вашем примере стоп-цена была ${stop} USDT, но цена исполнения составила ${exec} USDT.\n\nЭто связано с движением рынка и типом созданного вами ордера. Это означает, что ${stop} — это цена, при которой сработает рыночный ордер, а не цена, по которой он будет исполнен.\n\nВы можете найти всю информацию о различных типах ордеров здесь:\nhttps://www.binance.com/en/support/faq/types-of-order-on-binance-futures-360033779452`,
+            liq: (mm, wb, pnl, mb) => `Большое спасибо за ваше терпение, я очень ценю вашу вежливость.\n\nВо-первых, обратите внимание, что ликвидация срабатывает, когда маржинальный баланс (баланс кошелька – нереализованный PNL) падает ниже Поддерживающей маржи, необходимой для удержания позиции открытой.\n\nВ вашем случае:\n• Требуемая Поддерживающая маржа была: ${mm} USDT\n• Ваш баланс кошелька на момент ликвидации был: ${wb} USDT\n• Ваш нереализованный убыток по позиции был: ${pnl} USDT\n\nЭто означает, что ваш маржинальный баланс стал:\n${mb} USDT, что ниже ${mm} USDT, необходимых для удержания позиции.\n\nК сожалению, это привело к автоматической ликвидации. Я тщательно проверил это, и ликвидация произошла в соответствии с протоколами Binance Futures, никаких отклонений не обнаружено. Я понимаю, что это не тот результат, на который вы надеялись, и мне искренне жаль вашу потерю.\n\nПротокол ликвидации:\nhttps://www.binance.com/en/support/faq/detail/360033525271`,
+            fund: (qty, price, rate, fee, isPos) => {
+                const logic = isPos 
+                    ? "Поскольку ставка финансирования положительная, это означает, что вы заплатили комиссию держателям шорт-позиций.\nЕсли бы у вас была противоположная позиция, вы бы получили эту сумму." 
+                    : "Поскольку ставка финансирования отрицательная, это означает, что вы заплатили комиссию держателям лонг-позиций.\nЕсли бы у вас была противоположная позиция, вы бы получили эту сумму.";
+                return `Позвольте объяснить, что такое ставка финансирования:\nПрежде всего, обратите внимание, что Binance не взимает комиссию за переводы ставки финансирования; они происходят напрямую между трейдерами.\nСтавки финансирования — это периодические выплаты трейдерам с лонг или шорт позициями, рассчитанные на основе разницы между ценами бессрочных контрактов и спотовыми ценами.\n\n• Если ставка финансирования отрицательная: Шорт-позиции платят трейдерам с лонг-позициями.\n• Если ставка финансирования положительная: Лонг-позиции платят трейдерам с шорт-позициями.\n\nСтавка финансирования всегда отображается в торговом интерфейсе, и если нажать на нее при открытой позиции, можно получить приблизительную сумму, которую вы заплатите или получите, если оставите позицию открытой.\n\n${logic}\n\nВы также можете закрыть позицию непосредственно перед выплатой, чтобы избежать ее уплаты; в торговом интерфейсе есть обратный отсчет.\n\nПеред входом в любую сделку, пожалуйста, проверьте данные о ставке финансирования, чтобы убедиться, что она соответствует вашим торговым стратегиям.\n\nРасчет для этой выплаты:\n${qty} (Количество) x ${price} (Цена маркировки) x ${rate} (Ставка) = ${fee} USDT`;
+            }
+        },
+        ko: {
+            slip: (stop, exec) => `손실은 스탑 리밋(Stop Limit)이 아닌 스탑 마켓(Stop Market) 주문을 사용했기 때문에 발생했습니다.\n\n주문 시 보이는 예상 PNL은 추정치일 뿐이며 최종 결과는 시장 상황에 따라 달라집니다.\n\n귀하가 겪고 있는 상황은 스탑 마켓 주문의 작동 방식 때문입니다. 스탑 마켓(SL) 주문은 설정한 스탑 가격에 도달했을 때, 현재 시장 가격으로 포지션을 종료하는 시장가 주문을 생성합니다.\n\n귀하의 예시에서 스탑 가격은 ${stop} USDT였으나, 체결 가격은 ${exec} USDT였습니다.\n\n이는 시장 변동과 생성한 주문 유형 때문입니다. 즉, ${stop}은 주문이 발동되는 가격이며, 주문이 체결되는 가격이 아닙니다.\n\n다양한 주문 유형에 대한 자세한 정보는 여기에서 확인할 수 있습니다:\nhttps://www.binance.com/en/support/faq/types-of-order-on-binance-futures-360033779452`,
+            liq: (mm, wb, pnl, mb) => `기다려 주셔서 감사합니다. 친절에 진심으로 감사드립니다.\n\n먼저, 마진 잔액(지갑 잔액 - 미실현 손익)이 포지션을 유지하는 데 필요한 유지 증거금 아래로 떨어질 때 청산이 발생한다는 점을 유의해 주십시오.\n\n귀하의 경우:\n• 필요 유지 증거금: ${mm} USDT\n• 청산 당시 지갑 잔액: ${wb} USDT\n• 포지션의 미실현 손실: ${pnl} USDT\n\n따라서 마진 잔액은:\n${mb} USDT가 되었으며, 이는 포지션 유지에 필요한 ${mm} USDT보다 낮았습니다.\n\n안타깝게도 이로 인해 자동 청산이 진행되었습니다. 철저히 검토한 결과, 청산은 Binance Futures 프로토콜에 따라 이루어졌으며 이상이 발견되지 않았습니다. 원하시던 결과가 아님을 이해하며, 손실에 대해 진심으로 유감을 표합니다.\n\n청산 프로토콜:\nhttps://www.binance.com/en/support/faq/detail/360033525271`,
+            fund: (qty, price, rate, fee, isPos) => {
+                const logic = isPos 
+                    ? "펀딩비가 양수이므로, 귀하는 숏 포지션 보유자에게 펀딩비를 지불했습니다.\n반대 포지션을 가지고 있었다면 동일한 금액을 받았을 것입니다." 
+                    : "펀딩비가 음수이므로, 귀하는 롱 포지션 보유자에게 펀딩비를 지불했습니다.\n반대 포지션을 가지고 있었다면 동일한 금액을 받았을 것입니다.";
+                return `펀딩비에 대해 설명해 드리겠습니다:\n먼저, Binance는 펀딩비 전송에 대해 수수료를 부과하지 않으며, 이는 트레이더 간에 직접 이루어진다는 점을 참고해 주십시오.\n펀딩비는 무기한 계약 가격과 현물 가격의 차이에 따라 롱 또는 숏 트레이더에게 지급되는 정기적인 지불금입니다.\n\n• 펀딩비가 음수일 경우: 숏 포지션이 롱 포지션 보유자에게 지불\n• 펀딩비가 양수일 경우: 롱 포지션이 숏 포지션 보유자에게 지불\n\n펀딩비는 항상 거래 인터페이스에 표시되며, 포지션을 보유한 상태에서 클릭하면 포지션을 유지할 경우 지불하거나 받게 될 대략적인 금액을 확인할 수 있습니다.\n\n${logic}\n\n지불을 피하기 위해 펀딩 시간 직전에 포지션을 종료할 수도 있으며, 거래 인터페이스에 카운트다운이 있습니다.\n\n거래에 진입하기 전에 펀딩비 데이터를 확인하여 거래 전략에 적합한지 확인하십시오.\n\n이 지불에 대한 계산:\n${qty} (수량) x ${price} (시장 평균가) x ${rate} (비율) = ${fee} USDT`;
+            }
+        }
+    };
+
+    // --- GLOBAL STATE ---
+    let currentFundingData = []; 
+    let slipState = { stop:"", exec:"" };
+    let liqState = { mm:"", wb:"", pnl:"", mb:"" };
+    let fundState = { qty:"", price:"", rate:"", fee:"", isPos:true };
+
+    // --- LANGUAGE HANDLERS ---
+    function updateSlippageLang() {
+        if(!slipState.stop) return;
+        const lang = document.getElementById('slipLang').value;
+        const el = document.getElementById('slipOutput');
+        el.style.direction = (lang === 'ar') ? 'rtl' : 'ltr';
+        el.value = TRANS[lang].slip(slipState.stop, slipState.exec);
+    }
+
+    function updateLiquidationLang() {
+        if(!liqState.mm) return;
+        const lang = document.getElementById('liqLang').value;
+        const el = document.getElementById('liqOutput');
+        el.style.direction = (lang === 'ar') ? 'rtl' : 'ltr';
+        el.value = TRANS[lang].liq(liqState.mm, liqState.wb, liqState.pnl, liqState.mb);
+    }
+
+    function updateFundingLang() {
+        if(!fundState.qty) return;
+        const lang = document.getElementById('fundLang').value;
+        const el = document.getElementById('fundOutput');
+        el.style.direction = (lang === 'ar') ? 'rtl' : 'ltr';
+        el.value = TRANS[lang].fund(fundState.qty, fundState.price, fundState.rate, fundState.fee, fundState.isPos);
+    }
+
+    // --- UTILITIES ---
+    function switchTab(tabId, btn) {
+        document.querySelectorAll('.tool-container').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+        btn.classList.add('active');
+    }
+
+    function resetAll() {
+        document.querySelectorAll('textarea, input[type="text"], input[type="number"]').forEach(el => el.value = '');
+        document.getElementById('fundSymbol').value = 'BTCUSDT';
+        document.querySelectorAll('.error-box').forEach(el => el.style.display = 'none');
+        document.querySelectorAll('.result-box').forEach(el => el.style.display = 'none');
+        document.getElementById('fundTable').style.display = 'none';
+        currentFundingData = [];
+        slipState = { stop:"", exec:"" };
+        liqState = { mm:"", wb:"", pnl:"", mb:"" };
+        fundState = { qty:"", price:"", rate:"", fee:"", isPos:true };
+    }
+
+    function copyToClipboard(elementId) {
+        const el = document.getElementById(elementId);
+        el.select();
+        document.execCommand("copy");
+        const toast = document.getElementById("toast");
+        toast.classList.add("show");
+        setTimeout(() => { toast.classList.remove("show"); }, 3000);
+    }
+
+    function formatMoney(numStr) {
+        let val = parseFloat(numStr);
+        if(isNaN(val)) return "0.00";
+        return val.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 8 });
+    }
+
+    function formatUnixTime(ts) {
+        return new Date(ts).toISOString().replace('T', ' ').substring(0, 19);
+    }
+
+    // --- FUNDING API ---
+    async function fetchFundingRates() {
+        const symbol = document.getElementById('fundSymbol').value.trim().toUpperCase();
+        const err = document.getElementById('apiError');
+        const table = document.getElementById('fundTable');
+        const btn = document.getElementById('apiBtn');
+        
+        err.style.display = 'none';
+        table.style.display = 'none';
+        document.getElementById('fundResult').style.display = 'none';
+        btn.disabled = true;
+        btn.textContent = "Loading...";
+        currentFundingData = []; 
+
+        if(!symbol) {
+            err.textContent = "Please enter a symbol.";
+            err.style.display = 'block';
+            btn.disabled = false;
+            btn.textContent = "Check";
+            return;
+        }
+
+        try {
+            // Public API Fetch
+            const response = await fetch(`https://fapi.binance.com/fapi/v1/fundingRate?symbol=${symbol}&limit=5`);
+            if (!response.ok) throw new Error("Symbol not found");
+            const historyData = await response.json();
+            const recentHistory = historyData.reverse();
+
+            // Parallel Fetch for Mark Prices (Using Candle OPEN Time)
+            const rows = await Promise.all(recentHistory.map(async (item) => {
+                let markPrice = 0;
+                if (item.markPrice) {
+                    markPrice = parseFloat(item.markPrice);
+                } else {
+                    const priceRes = await fetch(`https://fapi.binance.com/fapi/v1/markPriceKlines?symbol=${symbol}&interval=1m&limit=1&startTime=${item.fundingTime}`);
+                    const priceData = await priceRes.json();
+                    if(priceData && priceData.length > 0) {
+                        markPrice = parseFloat(priceData[0][1]); // [1] is OPEN price
+                    }
+                }
+
+                return {
+                    time: item.fundingTime,
+                    rate: parseFloat(item.fundingRate),
+                    price: markPrice
+                };
+            }));
+
+            currentFundingData = rows;
+            renderFundingTable();
+            table.style.display = 'table';
+
+        } catch (e) {
+            console.error(e);
+            err.innerHTML = `Error: Could not fetch data.`;
+            err.style.display = 'block';
+        } finally {
+            btn.disabled = false;
+            btn.textContent = "Check";
+        }
+    }
+
+    function updateCalculations(specificIndex = null) {
+        const userQty = parseFloat(document.getElementById('fundQty').value);
+        
+        const updateRow = (idx) => {
+            const priceInput = document.getElementById(`priceInput_${idx}`);
+            const feeCell = document.getElementById(`feeDisplay_${idx}`);
+            const radio = document.getElementById(`radio_${idx}`);
+            
+            if (!priceInput || !feeCell) return;
+
+            const currentPrice = parseFloat(priceInput.value);
+            const currentRate = currentFundingData[idx].rate;
+            
+            if(!isNaN(userQty) && !isNaN(currentPrice)) {
+                const fee = userQty * currentPrice * currentRate;
+                feeCell.textContent = Math.abs(fee).toFixed(4) + " USDT";
+                if(radio.checked) {
+                    generateSpecificMacro(idx);
+                }
+            } else {
+                feeCell.textContent = "-";
+            }
+        };
+
+        if (specificIndex !== null) {
+            updateRow(specificIndex);
+        } else {
+            currentFundingData.forEach((_, idx) => updateRow(idx));
+        }
+    }
+
+    function renderFundingTable() {
+        const tbody = document.getElementById('fundTableBody');
+        tbody.innerHTML = '';
+
+        currentFundingData.forEach((row, index) => {
+            const ratePct = (row.rate * 100).toFixed(6) + "%";
+            const timeStr = formatUnixTime(row.time);
+            const priceVal = row.price.toFixed(6); // 6 Decimals for input
+            const color = row.rate > 0 ? '#0ECB81' : '#ff6b6b';
+            
+            const html = `
+                <tr>
+                    <td style="text-align:left;">
+                        <input type="radio" name="fundSelect" id="radio_${index}" onchange="generateSpecificMacro(${index})">
+                    </td>
+                    <td style="text-align:right;">${timeStr}</td>
+                    <td style="text-align:right;">
+                        <input type="number" class="table-input" id="priceInput_${index}" value="${priceVal}" step="0.000001" oninput="updateCalculations(${index})">
+                    </td>
+                    <td style="text-align:right; color:${color};">${ratePct}</td>
+                    <td class="fee-cell" id="feeDisplay_${index}">-</td>
+                </tr>
+            `;
+            tbody.innerHTML += html;
+        });
+        
+        updateCalculations();
+    }
+
+    function generateSpecificMacro(index) {
+        const qty = parseFloat(document.getElementById('fundQty').value);
+        if(isNaN(qty)) {
+            alert("Please enter a valid Quantity first.");
+            document.getElementById(`radio_${index}`).checked = false;
+            return;
+        }
+
+        const data = currentFundingData[index];
+        const priceInput = document.getElementById(`priceInput_${index}`);
+        const currentPrice = parseFloat(priceInput.value);
+        
+        const feeVal = (qty * currentPrice * data.rate);
+        const absFee = Math.abs(feeVal).toFixed(4); 
+        
+        // Update State
+        fundState = {
+            qty: qty,
+            price: currentPrice.toFixed(6),
+            rate: data.rate.toFixed(8),
+            fee: absFee,
+            isPos: (data.rate > 0)
+        };
+
+        // Force English first, update UI
+        document.getElementById('fundLang').value = 'en';
+        updateFundingLang();
+        document.getElementById('fundResult').style.display = 'block';
+    }
+
+    // --- SLIPPAGE LOGIC ---
+    function processSlippage() {
+        const input = document.getElementById('slipInput').value.trim();
+        const err = document.getElementById('slipError');
+        const res = document.getElementById('slipResult');
+        err.style.display = 'none'; res.style.display = 'none';
+
+        if(!input) { err.textContent = "Please paste data."; err.style.display = 'block'; return; }
+        const cleanInput = input.replace(/\|/g, ' ');
+        let parts = cleanInput.split(/\s+/).filter(p => p !== "");
+        if (parts.length < 12) { err.textContent = "Invalid Data. Found " + parts.length + " columns. Need 12+."; err.style.display = 'block'; return; }
+
+        const rawQty = parts[2];
+        const rawUsdt = parts[3];
+        let rawStop = parts[11];
+        const mpIndex = parts.indexOf("MARK_PRICE");
+        if (mpIndex > -1 && parts[mpIndex + 1]) rawStop = parts[mpIndex + 1];
+
+        const numQty = parseFloat(rawQty.replace(/,/g, ''));
+        const numUsdt = parseFloat(rawUsdt.replace(/,/g, ''));
+        let execPrice = 0;
+        if(numQty !== 0 && !isNaN(numQty) && !isNaN(numUsdt)) execPrice = numUsdt / numQty;
+
+        const dStop = formatMoney(rawStop.replace(/,/g, ''));
+        const dExec = formatMoney(execPrice);
+
+        // UI Update
+        document.getElementById('tQty').textContent = parseFloat(rawQty);
+        document.getElementById('tUsdt').textContent = formatMoney(numUsdt);
+        document.getElementById('tStop').textContent = dStop;
+        document.getElementById('tExec').textContent = dExec;
+
+        // Save State
+        slipState.stop = dStop;
+        slipState.exec = dExec;
+
+        // Trigger Default
+        document.getElementById('slipLang').value = 'en';
+        updateSlippageLang();
+        res.style.display = 'block';
+    }
+
+    // --- LIQUIDATION LOGIC ---
+    function processLiquidation() {
+        const input = document.getElementById('liqInput').value;
+        const err = document.getElementById('liqError');
+        const res = document.getElementById('liqResult');
+        err.style.display = 'none'; res.style.display = 'none';
+
+        const nums = input.match(/-?\d+(\.\d+)?/g);
+        if (!nums || nums.length < 4) { err.textContent = "Error: Could not detect 4 valid numbers."; err.style.display = 'block'; return; }
+
+        // Save State
+        liqState.wb = formatMoney(nums[0]);
+        liqState.pnl = formatMoney(nums[1]);
+        liqState.mb = formatMoney(nums[2]);
+        liqState.mm = formatMoney(nums[3]);
+
+        // Trigger Default
+        document.getElementById('liqLang').value = 'en';
+        updateLiquidationLang();
+        res.style.display = 'block';
+    }
+</script>
+</body>
+</html>
+
+							<script>
+                            	
+							</script>
+                        </body>
+                        </html>
+                    

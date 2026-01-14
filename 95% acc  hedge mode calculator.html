@@ -1,0 +1,498 @@
+
+                        <!DOCTYPE html>
+                        <html lang="en">
+                        <head>
+                            <meta charset="UTF-8">
+                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+							<style>
+								body {
+									background-color: white; /* Ensure the iframe has a white background */
+								}
+
+								
+							</style>
+                        </head>
+                        <body>
+                            <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Binance Futures Liquidation Price Calculator (One-way & Hedge Mode)</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    margin: 2rem;
+    background: #f5f7fa;
+    color: #333;
+  }
+  h1 {
+    text-align: center;
+    margin-bottom: 1rem;
+  }
+  form {
+    max-width: 720px;
+    margin: 0 auto;
+    background: white;
+    padding: 1.5rem 2rem;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgb(0 0 0 / 0.1);
+  }
+  label {
+    display: block;
+    margin-top: 1rem;
+    font-weight: bold;
+  }
+  input[type="number"], select {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    margin-top: 0.25rem;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+    box-sizing: border-box;
+  }
+  .radio-group {
+    margin-top: 1rem;
+    display: flex;
+    gap: 2rem;
+    justify-content: center;
+  }
+  .radio-group label {
+    font-weight: normal;
+    cursor: pointer;
+  }
+  button {
+    margin-top: 1.5rem;
+    width: 100%;
+    padding: 0.75rem;
+    font-size: 1.1rem;
+    background-color: #f0b90b;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    color: #111;
+    transition: background-color 0.2s ease;
+  }
+  button:hover:enabled {
+    background-color: #d89b09;
+  }
+  button:disabled {
+    cursor: default;
+    opacity: 0.5;
+  }
+  #result {
+    margin-top: 1.5rem;
+    font-size: 1.3rem;
+    font-weight: 600;
+    text-align: center;
+    min-height: 2em;
+  }
+  #calculationDetails {
+    margin-top: 1.5rem;
+    max-width: 720px;
+    margin-left: auto;
+    margin-right: auto;
+    background: #fffdea;
+    border: 1px solid #f0b90b;
+    border-radius: 6px;
+    padding: 1rem 1.5rem;
+    white-space: pre-wrap;
+    font-family: Consolas, monospace;
+    font-size: 0.95rem;
+    min-height: 6em;
+  }
+  footer {
+    margin-top: 3rem;
+    text-align: center;
+    font-size: 0.85rem;
+    color: #666;
+  }
+  .note {
+    margin-top: 0.2rem;
+    font-size: 0.9rem;
+    color: #555;
+  }
+  .hidden {
+    display: none;
+  }
+  .section {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background: #e8f1ff;
+    border-radius: 6px;
+  }
+  .section h3 {
+    margin-top: 0;
+  }
+  .inline-inputs {
+    display: flex;
+    gap: 1rem;
+  }
+  .inline-inputs > div {
+    flex: 1;
+  }
+</style>
+</head>
+<body>
+<h1>Binance Futures Liquidation Price Calculator</h1>
+
+<form id="liqForm" autocomplete="off" novalidate>
+  <div class="radio-group" aria-label="Select mode of liquidation calculation">
+    <label><input type="radio" name="mode" value="oneway" checked /> One-way mode</label>
+    <label><input type="radio" name="mode" value="hedge" /> Hedge mode</label>
+  </div>
+
+  <label for="walletBalance">Wallet Balance (WB) [USDT]</label>
+  <input type="number" id="walletBalance" step="any" min="0" placeholder="e.g. 1535443.01" required />
+
+  <label for="tmm1">Maintenance Margin Other Contracts (TMM1) [USDT]</label>
+  <input type="number" id="tmm1" step="any" min="0" placeholder="e.g. 71200.81" required />
+
+  <label for="upnl1">Unrealized PnL Other Contracts (UPNL1) [USDT]</label>
+  <input type="number" id="upnl1" step="any" placeholder="e.g. -56354.57" required />
+
+  <div id="onewayFields" class="section">
+    <h3>One-way Mode Inputs (Single Position)</h3>
+    <label for="pos1both">Position Size (Position1BOTH)</label>
+    <input type="number" id="pos1both" step="any" min="0" placeholder="e.g. 3683.979" />
+
+    <label for="ep1both">Entry Price (EP1BOTH) [USDT]</label>
+    <input type="number" id="ep1both" step="any" min="0" placeholder="e.g. 1456.84" />
+
+    <label for="cumB">Fixed Maintenance Amount (cumB) [USDT]</label>
+    <input type="number" id="cumB" step="any" min="0" placeholder="e.g. 135365" />
+
+    <label for="mmrB">Maintenance Margin Rate (MMR_B) [%]</label>
+    <input type="number" id="mmrB" step="0.001" min="0" max="100" placeholder="e.g. 10" />
+
+    <label for="side1both">Position Side</label>
+    <select id="side1both">
+      <option value="1">Long (1)</option>
+      <option value="-1">Short (-1)</option>
+    </select>
+  </div>
+
+  <div id="hedgeFields" class="section hidden">
+    <h3>Hedge Mode Inputs (Long and Short Positions)</h3>
+    <div class="inline-inputs">
+      <div>
+        <label for="pos1long">Long Position Size (Position1LONG)</label>
+        <input type="number" id="pos1long" step="any" min="0" placeholder="e.g. 100" />
+      </div>
+      <div>
+        <label for="ep1long">Long Entry Price (EP1LONG) [USDT]</label>
+        <input type="number" id="ep1long" step="any" min="0" placeholder="e.g. 3000" />
+      </div>
+    </div>
+    <label for="cumL">Maintenance Amount LONG position (cumL) [USDT]</label>
+    <input type="number" id="cumL" step="any" min="0" placeholder="e.g. 5000" />
+    <label for="mmrL">Maintenance Margin Rate LONG (MMR_L) [%]</label>
+    <input type="number" id="mmrL" step="0.001" min="0" max="100" placeholder="e.g. 10" />
+
+    <hr style="margin: 1.5rem 0" />
+
+    <div class="inline-inputs">
+      <div>
+        <label for="pos1short">Short Position Size (Position1SHORT)</label>
+        <input type="number" id="pos1short" step="any" min="0" placeholder="e.g. 50" />
+      </div>
+      <div>
+        <label for="ep1short">Short Entry Price (EP1SHORT) [USDT]</label>
+        <input type="number" id="ep1short" step="any" min="0" placeholder="e.g. 3200" />
+      </div>
+    </div>
+    <label for="cumS">Maintenance Amount SHORT position (cumS) [USDT]</label>
+    <input type="number" id="cumS" step="any" min="0" placeholder="e.g. 3000" />
+    <label for="mmrS">Maintenance Margin Rate SHORT (MMR_S) [%]</label>
+    <input type="number" id="mmrS" step="0.001" min="0" max="100" placeholder="e.g. 8" />
+  </div>
+
+  <button type="button" id="calcBtn">Calculate Liquidation Price</button>
+  <div id="result" aria-live="polite" aria-atomic="true"></div>
+  <pre id="calculationDetails" class="hidden"></pre>
+</form>
+
+<footer>
+  Developed for Binance Futures users.<br />
+  Supports one-way and hedge mode liquidation price calculations using Binance formulas.
+</footer>
+
+<script>
+  const modeRadios = document.querySelectorAll('input[name="mode"]');
+  const onewayFields = document.getElementById('onewayFields');
+  const hedgeFields = document.getElementById('hedgeFields');
+  const calcBtn = document.getElementById('calcBtn');
+  const resultDiv = document.getElementById('result');
+  const calcDetails = document.getElementById('calculationDetails');
+
+  function getSelectedMode() {
+    for (const radio of modeRadios) {
+      if (radio.checked) return radio.value;
+    }
+    return 'oneway';
+  }
+
+  function toggleModeFields() {
+    const mode = getSelectedMode();
+    if (mode === 'oneway') {
+      onewayFields.classList.remove('hidden');
+      hedgeFields.classList.add('hidden');
+    } else {
+      hedgeFields.classList.remove('hidden');
+      onewayFields.classList.add('hidden');
+    }
+    clearOutputs();
+  }
+
+  modeRadios.forEach(r => r.addEventListener('change', toggleModeFields));
+  toggleModeFields();
+
+  function clearOutputs() {
+    resultDiv.textContent = '';
+    calcDetails.textContent = '';
+    calcDetails.classList.add('hidden');
+  }
+
+  function formatNum(num) {
+    return isFinite(num) ? num.toFixed(6) : 'NaN';
+  }
+
+  function calculateOneWay(params) {
+    // Unpack parameters
+    let {WB, TMM1, UPNL1, cumB, Side1BOTH, Position1BOTH, EP1BOTH, MMR_B} = params;
+
+    // numerator and denominator as per formula
+    let numerator = WB - TMM1 + UPNL1 + cumB - (Side1BOTH * Position1BOTH * EP1BOTH);
+    let denominator = Position1BOTH * (MMR_B - Side1BOTH);
+
+    if (denominator === 0) throw new Error('Denominator zero - invalid input');
+
+    let LP = numerator / denominator;
+    return {LP, numerator, denominator};
+  }
+
+  function calculateHedge(params) {
+    // Unpack parameters
+    let {
+      WB, TMM1, UPNL1,
+      cumL, cumS,
+      Position1LONG, EP1LONG, MMR_L,
+      Position1SHORT, EP1SHORT, MMR_S
+    } = params;
+
+    // Calculate LP for Long side
+    let numeratorLong = WB - TMM1 + UPNL1 + cumL - Position1SHORT * EP1SHORT;
+    let denominatorLong = Position1LONG * (MMR_L - 1);
+    let LP_Long = null;
+
+    if (denominatorLong !== 0 && Position1LONG > 0) {
+      LP_Long = numeratorLong / denominatorLong;
+    }
+
+    // Calculate LP for Short side
+    let numeratorShort = WB - TMM1 + UPNL1 + cumS - Position1LONG * EP1LONG;
+    let denominatorShort = Position1SHORT * (MMR_S + 1);
+    let LP_Short = null;
+
+    if (denominatorShort !== 0 && Position1SHORT > 0) {
+      LP_Short = numeratorShort / denominatorShort;
+    }
+
+    return {
+      LP_Long,
+      LP_Short,
+      numeratorLong,
+      denominatorLong,
+      numeratorShort,
+      denominatorShort
+    };
+  }
+
+  calcBtn.addEventListener('click', () => {
+    clearOutputs();
+
+    try {
+      const WB = parseFloat(document.getElementById('walletBalance').value);
+      const TMM1 = parseFloat(document.getElementById('tmm1').value);
+      const UPNL1 = parseFloat(document.getElementById('upnl1').value);
+
+      const mode = getSelectedMode();
+
+      if ([WB, TMM1, UPNL1].some(v => isNaN(v) || v < 0)) {
+        resultDiv.textContent = 'Please fill Wallet Balance, TMM1, and UPNL1 with valid non-negative numbers.';
+        return;
+      }
+
+      if (mode === 'oneway') {
+        const Position1BOTH = parseFloat(document.getElementById('pos1both').value);
+        const EP1BOTH = parseFloat(document.getElementById('ep1both').value);
+        const cumB = parseFloat(document.getElementById('cumB').value);
+        const MMR_B_pct = parseFloat(document.getElementById('mmrB').value);
+        const Side1BOTH = parseInt(document.getElementById('side1both').value, 10);
+
+        if ([Position1BOTH, EP1BOTH, cumB, MMR_B_pct].some(v => isNaN(v) || v < 0) || (Side1BOTH !== 1 && Side1BOTH !== -1)) {
+          resultDiv.textContent = 'Please fill all one-way mode inputs with valid positive numbers.';
+          return;
+        }
+
+        const MMR_B = MMR_B_pct / 100;
+
+        const {LP, numerator, denominator} = calculateOneWay({
+          WB, TMM1, UPNL1, cumB, Side1BOTH, Position1BOTH, EP1BOTH, MMR_B
+        });
+
+        if (!isFinite(LP)) {
+          resultDiv.textContent = 'Calculation resulted in invalid number. Please check inputs.';
+          return;
+        }
+
+        resultDiv.innerHTML = `Liquidation Price (One-way): <strong>${formatNum(LP)} USDT</strong>`;
+
+        const calcText = `
+One-way Mode Calculation Details:
+--------------------------------
+
+Inputs:
+WB = ${WB}
+TMM1 = ${TMM1}
+UPNL1 = ${UPNL1}
+cumB = ${cumB}
+Side1BOTH = ${Side1BOTH}
+Position1BOTH = ${Position1BOTH}
+EP1BOTH = ${EP1BOTH}
+MMR_B = ${MMR_B} (from ${MMR_B_pct} %)
+
+Numerator = WB - TMM1 + UPNL1 + cumB - (Side1BOTH * Position1BOTH * EP1BOTH)
+          = ${numerator.toFixed(6)}
+
+Denominator = Position1BOTH * (MMR_B - Side1BOTH)
+            = ${denominator.toFixed(6)}
+
+Liquidation Price (LP) = Numerator / Denominator = ${formatNum(LP)} USDT
+`.trim();
+
+        calcDetails.textContent = calcText;
+        calcDetails.classList.remove('hidden');
+
+      } else if (mode === 'hedge') {
+        // Hedge inputs
+        const Position1LONG = parseFloat(document.getElementById('pos1long').value);
+        const EP1LONG = parseFloat(document.getElementById('ep1long').value);
+        const cumL = parseFloat(document.getElementById('cumL').value);
+        const MMR_L_pct = parseFloat(document.getElementById('mmrL').value);
+
+        const Position1SHORT = parseFloat(document.getElementById('pos1short').value);
+        const EP1SHORT = parseFloat(document.getElementById('ep1short').value);
+        const cumS = parseFloat(document.getElementById('cumS').value);
+        const MMR_S_pct = parseFloat(document.getElementById('mmrS').value);
+
+        if ([Position1LONG, EP1LONG, cumL, MMR_L_pct, Position1SHORT, EP1SHORT, cumS, MMR_S_pct].some(v => isNaN(v) || v < 0)) {
+          resultDiv.textContent = 'Please fill all hedge mode inputs with valid non-negative numbers.';
+          return;
+        }
+
+        // Maintenance margin rates decimal
+        const MMR_L = MMR_L_pct / 100;
+        const MMR_S = MMR_S_pct / 100;
+
+        const {
+          LP_Long, LP_Short,
+          numeratorLong, denominatorLong,
+          numeratorShort, denominatorShort
+        } = calculateHedge({
+          WB, TMM1, UPNL1,
+          cumL, cumS,
+          Position1LONG, EP1LONG, MMR_L,
+          Position1SHORT, EP1SHORT, MMR_S
+        });
+
+        let resultHTML = '';
+        const calcDetailsTextParts = [];
+
+        if (Position1LONG > 0) {
+          if (!isFinite(LP_Long)) {
+            resultDiv.textContent = 'Long side calculation invalid denominator or zero position size.';
+            return;
+          }
+          resultHTML += `Liquidation Price (Long): <strong>${formatNum(LP_Long)} USDT</strong><br/>`;
+          calcDetailsTextParts.push(`
+Hedge Mode - Long Position Calculation:
+--------------------------------------
+
+Inputs:
+WB = ${WB}
+TMM1 = ${TMM1}
+UPNL1 = ${UPNL1}
+cumL = ${cumL}
+Position1SHORT = ${Position1SHORT}
+EP1SHORT = ${EP1SHORT}
+MMR_L = ${MMR_L} (from ${MMR_L_pct} %)
+Position1LONG = ${Position1LONG}
+
+Numerator Long = WB - TMM1 + UPNL1 + cumL - Position1SHORT * EP1SHORT
+               = ${numeratorLong.toFixed(6)}
+
+Denominator Long = Position1LONG * (MMR_L - 1)
+                 = ${denominatorLong.toFixed(6)}
+
+LP Long = Numerator Long / Denominator Long = ${formatNum(LP_Long)} USDT
+          `.trim());
+        } else {
+          resultHTML += `No Long position size entered.<br/>`;
+        }
+
+        if (Position1SHORT > 0) {
+          if (!isFinite(LP_Short)) {
+            resultDiv.textContent = 'Short side calculation invalid denominator or zero position size.';
+            return;
+          }
+          resultHTML += `Liquidation Price (Short): <strong>${formatNum(LP_Short)} USDT</strong>`;
+          calcDetailsTextParts.push(`
+Hedge Mode - Short Position Calculation:
+---------------------------------------
+
+Inputs:
+WB = ${WB}
+TMM1 = ${TMM1}
+UPNL1 = ${UPNL1}
+cumS = ${cumS}
+Position1LONG = ${Position1LONG}
+EP1LONG = ${EP1LONG}
+MMR_S = ${MMR_S} (from ${MMR_S_pct} %)
+Position1SHORT = ${Position1SHORT}
+
+Numerator Short = WB - TMM1 + UPNL1 + cumS - Position1LONG * EP1LONG
+                = ${numeratorShort.toFixed(6)}
+
+Denominator Short = Position1SHORT * (MMR_S + 1)
+                  = ${denominatorShort.toFixed(6)}
+
+LP Short = Numerator Short / Denominator Short = ${formatNum(LP_Short)} USDT
+          `.trim());
+        } else {
+          resultHTML += `<br/>No Short position size entered.`;
+        }
+
+        resultDiv.innerHTML = resultHTML;
+        calcDetails.textContent = calcDetailsTextParts.join('\n\n');
+        if (calcDetails.textContent) {
+          calcDetails.classList.remove('hidden');
+        }
+      }
+    } catch (ex) {
+      resultDiv.textContent = 'Error in calculation: ' + ex.message;
+    }
+  });
+
+</script>
+</body>
+</html>
+
+							<script>
+                            	
+							</script>
+                        </body>
+                        </html>
+                    

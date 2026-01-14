@@ -1,0 +1,370 @@
+
+                        <!DOCTYPE html>
+                        <html lang="en">
+                        <head>
+                            <meta charset="UTF-8">
+                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+							<style>
+								body {
+									background-color: white; /* Ensure the iframe has a white background */
+								}
+
+								
+							</style>
+                        </head>
+                        <body>
+                            <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Binance Futures Liquidation Price Calculator</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    margin: 2rem;
+    background: #f5f7fa;
+    color: #333;
+  }
+  h1 {
+    text-align: center;
+    margin-bottom: 1rem;
+  }
+  form {
+    max-width: 520px;
+    margin: 0 auto;
+    background: white;
+    padding: 1.5rem 2rem;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgb(0 0 0 / 0.1);
+  }
+  label {
+    display: block;
+    margin-top: 1rem;
+    font-weight: bold;
+  }
+  input[type="number"],
+  select {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    margin-top: 0.25rem;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+    box-sizing: border-box;
+  }
+  .radio-group {
+    margin-top: 1rem;
+    display: flex;
+    gap: 1.5rem;
+    justify-content: center;
+  }
+  .radio-group label {
+    font-weight: normal;
+    cursor: pointer;
+  }
+  button {
+    margin-top: 1.5rem;
+    width: 100%;
+    padding: 0.75rem;
+    font-size: 1.1rem;
+    background-color: #f0b90b;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    color: #111;
+    transition: background-color 0.2s ease;
+  }
+  button:hover:enabled {
+    background-color: #d89b09;
+  }
+  button:disabled {
+    cursor: default;
+    opacity: 0.5;
+  }
+  #result {
+    margin-top: 1.5rem;
+    font-size: 1.3rem;
+    font-weight: 600;
+    text-align: center;
+    min-height: 1.5em;
+  }
+  #calculationDetails {
+    margin-top: 2rem;
+    max-width: 520px;
+    margin-left: auto;
+    margin-right: auto;
+    background: #fffdea;
+    border: 1px solid #f0b90b;
+    border-radius: 6px;
+    padding: 1rem 1.5rem;
+    white-space: pre-wrap;
+    font-family: Consolas, monospace;
+    font-size: 0.95rem;
+    min-height: 6em;
+  }
+  #copyButtonWrapper {
+    max-width: 520px;
+    margin: 1rem auto 0 auto;
+    text-align: center;
+  }
+  footer {
+    margin-top: 3rem;
+    text-align: center;
+    font-size: 0.85rem;
+    color: #666;
+  }
+  .note {
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+    color: #555;
+  }
+  .hidden {
+    display: none;
+  }
+</style>
+</head>
+<body>
+<h1>Binance Futures Liquidation Price Calculator</h1>
+
+<form id="liqForm" autocomplete="off" novalidate>
+  <div class="radio-group">
+    <label><input type="radio" name="mode" value="single" checked /> Single Position (Isolated Margin)</label>
+    <label><input type="radio" name="mode" value="multi" /> Multi Position (Cross Margin)</label>
+  </div>
+
+  <label for="walletBalance">Wallet Balance (WB) [USDT]</label>
+  <input type="number" id="walletBalance" step="any" min="0" placeholder="e.g. 1535443.01" required />
+
+  <label for="maintenanceMarginRate">Maintenance Margin Rate (MMR_B) [%]</label>
+  <input type="number" id="maintenanceMarginRate" step="0.001" min="0" max="100" placeholder="e.g. 10 for 10%" required />
+
+  <label for="positionSize">Position Size (Position1BOTH)</label>
+  <input type="number" id="positionSize" step="any" min="0" placeholder="e.g. 3683.979" required />
+
+  <label for="entryPrice">Entry Price (EP1BOTH) [USDT]</label>
+  <input type="number" id="entryPrice" step="any" min="0" placeholder="e.g. 1456.84" required />
+
+  <div id="cumBWrapper">
+    <label for="cumB">Fixed Maintenance Amount (cumB) [USDT]</label>
+    <input type="number" id="cumB" step="any" min="0" placeholder="e.g. 135365" required />
+    <div class="note">From Binance maintenance margin table based on your position notional</div>
+  </div>
+
+  <div id="multiInputs" class="hidden">
+    <label for="tmm1">Maintenance Margin of Other Contracts (TMM1) [USDT]</label>
+    <input type="number" id="tmm1" step="any" min="0" placeholder="e.g. 71200.81" />
+
+    <label for="upnl1">Unrealized PnL of Other Contracts (UPNL1) [USDT]</label>
+    <input type="number" id="upnl1" step="any" placeholder="e.g. -56354.57" />
+    <div class="note">Set 0 if none or isolated mode</div>
+  </div>
+
+  <label for="positionSide">Position Side</label>
+  <select id="positionSide" required>
+    <option value="1" selected>Long (1)</option>
+    <option value="-1">Short (-1)</option>
+  </select>
+
+  <button type="button" id="calcBtn">Calculate Liquidation Price</button>
+
+  <div id="result" aria-live="polite" aria-atomic="true"></div>
+</form>
+
+<div id="calculationDetails" class="hidden" aria-live="polite" aria-atomic="true"></div>
+
+<div id="copyButtonWrapper" class="hidden">
+  <button id="copyButton" type="button">Copy Calculations</button>
+</div>
+
+<footer>
+  Developed for Binance Futures users.<br />
+  Note: Calculation follows Binance's liquidation price formula for one-way margin mode.
+</footer>
+
+<script>
+  const multiInputsDiv = document.getElementById('multiInputs');
+  const calcDetailsDiv = document.getElementById('calculationDetails');
+  const copyBtnWrapper = document.getElementById('copyButtonWrapper');
+  const copyBtn = document.getElementById('copyButton');
+  const calcBtn = document.getElementById('calcBtn');
+  const resultDiv = document.getElementById('result');
+  const form = document.getElementById('liqForm');
+
+  function getSelectedMode() {
+    const radios = document.querySelectorAll('input[name="mode"]');
+    for (const radio of radios) {
+      if (radio.checked) return radio.value;
+    }
+    return 'single';
+  }
+
+  function toggleModeInputs() {
+    const mode = getSelectedMode();
+    if (mode === 'multi') {
+      multiInputsDiv.classList.remove('hidden');
+      document.getElementById('tmm1').required = true;
+      document.getElementById('upnl1').required = true;
+    } else {
+      multiInputsDiv.classList.add('hidden');
+      document.getElementById('tmm1').required = false;
+      document.getElementById('upnl1').required = false;
+      document.getElementById('tmm1').value = '';
+      document.getElementById('upnl1').value = '';
+    }
+    clearOutputs();
+  }
+
+  document.querySelectorAll('input[name="mode"]').forEach(radio => {
+    radio.addEventListener('change', toggleModeInputs);
+  });
+
+  toggleModeInputs();
+
+  function clearOutputs() {
+    resultDiv.textContent = '';
+    calcDetailsDiv.textContent = '';
+    calcDetailsDiv.classList.add('hidden');
+    copyBtnWrapper.classList.add('hidden');
+    copyBtn.disabled = true;
+  }
+
+  function calculateLiquidationPrice() {
+    clearOutputs();
+
+    const WB = parseFloat(document.getElementById('walletBalance').value);
+    const MMR_pct = parseFloat(document.getElementById('maintenanceMarginRate').value);
+    const Position1BOTH = parseFloat(document.getElementById('positionSize').value);
+    const EP1BOTH = parseFloat(document.getElementById('entryPrice').value);
+    const cumB = parseFloat(document.getElementById('cumB').value);
+    const Side1BOTH = parseInt(document.getElementById('positionSide').value, 10);
+
+    let TMM1 = 0, UPNL1 = 0;
+
+    const mode = getSelectedMode();
+
+    if (mode === 'multi') {
+      TMM1 = parseFloat(document.getElementById('tmm1').value);
+      UPNL1 = parseFloat(document.getElementById('upnl1').value);
+    }
+
+    // Input validation
+    if (
+      isNaN(WB) || WB < 0 ||
+      isNaN(MMR_pct) || MMR_pct < 0 || MMR_pct > 100 ||
+      isNaN(Position1BOTH) || Position1BOTH <= 0 ||
+      isNaN(EP1BOTH) || EP1BOTH <= 0 ||
+      isNaN(cumB) || cumB < 0 ||
+      (Side1BOTH !== 1 && Side1BOTH !== -1)
+    ) {
+      resultDiv.textContent = 'Please fill all fields with valid positive numbers.';
+      return;
+    }
+
+    if (mode === 'multi' && (isNaN(TMM1) || isNaN(UPNL1))) {
+      resultDiv.textContent = 'Please fill TMM1 and UPNL1 fields.';
+      return;
+    }
+
+    const MMR_B = MMR_pct / 100;
+
+    const numerator = WB - TMM1 + UPNL1 + cumB - (Side1BOTH * Position1BOTH * EP1BOTH);
+    const denominator = Position1BOTH * (MMR_B - Side1BOTH);
+
+    if (denominator === 0) {
+      resultDiv.textContent = 'Calculation error: denominator is zero. Please check inputs.';
+      return;
+    }
+
+    const LP = numerator / denominator;
+
+    if (!isFinite(LP)) {
+      resultDiv.textContent = 'Calculation error: result is not finite. Check inputs.';
+      return;
+    }
+
+    const LPFormatted = LP.toFixed(6);
+
+    resultDiv.innerHTML = `
+      <p>Liquidation Price (LP): <strong>${LPFormatted} USDT</strong></p>
+      <p><em>If the market price reaches this level, your position will be liquidated.</em></p>
+    `;
+
+    showCalculationDetails({
+      WB, TMM1, UPNL1, cumB, Side1BOTH, Position1BOTH, EP1BOTH, MMR_pct, MMR_B, numerator, denominator, LPFormatted
+    });
+  }
+
+  function showCalculationDetails(data) {
+    const {
+      WB, TMM1, UPNL1, cumB, Side1BOTH,
+      Position1BOTH, EP1BOTH, MMR_pct, MMR_B,
+      numerator, denominator, LPFormatted
+    } = data;
+
+    const sideStr = (Side1BOTH === 1) ? 'Long (+1)' : 'Short (-1)';
+
+    const details = `Calculation Details:
+-------------------
+
+Inputs:
+- Wallet Balance (WB): ${WB}
+- Maintenance Margin Rate (MMR_B): ${MMR_pct.toFixed(3)}% (decimal: ${MMR_B})
+- Position Size (Position1BOTH): ${Position1BOTH}
+- Entry Price (EP1BOTH): ${EP1BOTH}
+- Fixed Maintenance Amount (cumB): ${cumB}
+- Position Side (Side1BOTH): ${Side1BOTH} (${sideStr})
+- Maintenance Margin Other Contracts (TMM1): ${TMM1}
+- Unrealized PnL Other Contracts (UPNL1): ${UPNL1}
+
+---
+
+Step 1: Calculate Numerator
+    numerator = WB - TMM1 + UPNL1 + cumB - (Side1BOTH × Position1BOTH × EP1BOTH)
+              = ${WB} - ${TMM1} + ${UPNL1} + ${cumB} - (${Side1BOTH} × ${Position1BOTH} × ${EP1BOTH})
+              = ${numerator.toFixed(6)}
+
+Step 2: Calculate Denominator
+    denominator = Position1BOTH × (MMR_B - Side1BOTH)
+                = ${Position1BOTH} × (${MMR_B} - ${Side1BOTH})
+                = ${denominator.toFixed(6)}
+
+Step 3: Calculate Liquidation Price (LP)
+    LP = numerator ÷ denominator
+       = ${numerator.toFixed(6)} ÷ ${denominator.toFixed(6)}
+       = ${LPFormatted} USDT
+`;
+
+    calcDetailsDiv.textContent = details;
+    calcDetailsDiv.classList.remove('hidden');
+
+    copyBtnWrapper.classList.remove('hidden');
+    copyBtn.disabled = false;
+  }
+
+  function copyCalculations() {
+    if (calcDetailsDiv.classList.contains('hidden') || !calcDetailsDiv.textContent) {
+      alert('No calculations to copy.');
+      return;
+    }
+    navigator.clipboard.writeText(calcDetailsDiv.textContent)
+      .then(() => alert('Calculation details copied to clipboard!'))
+      .catch(() => alert('Failed to copy. Please try manually.'));
+  }
+
+  calcBtn.addEventListener('click', calculateLiquidationPrice);
+  copyBtn.addEventListener('click', copyCalculations);
+
+  // Prevent form submit if pressing enter accidentally
+  form.addEventListener('submit', e => e.preventDefault());
+</script>
+</body>
+</html>
+
+							<script>
+                            	
+							</script>
+                        </body>
+                        </html>
+                    
