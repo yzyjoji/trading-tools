@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trading Tools Hub</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #111111;
+            --bg-tertiary: #1a1a1a;
+            --accent-gold: #f0b90b;
+            --accent-gold-hover: #d4a50a;
+            --accent-green: #0ecb81;
+            --accent-red: #f6465d;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a0;
+            --text-muted: #666666;
+            --border-color: #2a2a2a;
+            --glow-gold: rgba(240, 185, 11, 0.3);
+        }
+
+        html, body {
+            height: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(180deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid var(--border-color);
+            flex-shrink: 0;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logo-icon {
+            width: 42px;
+            height: 42px;
+            background: linear-gradient(135deg, var(--accent-gold) 0%, #fcd535 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            box-shadow: 0 4px 20px var(--glow-gold);
+        }
+
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--text-primary) 0%, var(--accent-gold) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header-subtitle {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            font-weight: 400;
+        }
+
+        /* Navigation Tabs */
+        .nav-container {
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            padding: 0 2rem;
+            flex-shrink: 0;
+        }
+
+        .nav-tabs {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            gap: 0.5rem;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+
+        .nav-tabs::-webkit-scrollbar {
+            display: none;
+        }
+
+        .nav-tab {
+            padding: 1rem 1.5rem;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-family: inherit;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-tab:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .nav-tab.active {
+            color: var(--accent-gold);
+        }
+
+        .nav-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--accent-gold) 0%, #fcd535 100%);
+            box-shadow: 0 0 10px var(--glow-gold);
+        }
+
+        .nav-tab-icon {
+            font-size: 1.1rem;
+        }
+
+        /* Main Content Area */
+        .main-content {
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .tab-panel {
+            display: none;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .tab-panel.active {
+            display: block;
+        }
+
+        .tab-panel iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: #fff;
+        }
+
+        /* Loading Overlay */
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--bg-primary);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 1.5rem;
+            z-index: 10;
+            transition: opacity 0.5s ease;
+        }
+
+        .loading-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .spinner {
+            width: 48px;
+            height: 48px;
+            border: 3px solid var(--border-color);
+            border-top-color: var(--accent-gold);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* Welcome Panel */
+        .welcome-panel {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            padding: 2rem;
+            text-align: center;
+            background: radial-gradient(ellipse at center top, rgba(240, 185, 11, 0.05) 0%, transparent 50%);
+        }
+
+        .welcome-icon {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .welcome-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            background: linear-gradient(90deg, var(--text-primary) 0%, var(--accent-gold) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .welcome-subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            max-width: 500px;
+            line-height: 1.6;
+        }
+
+        .tool-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.25rem;
+            margin-top: 2.5rem;
+            max-width: 900px;
+            width: 100%;
+        }
+
+        .tool-card {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+        }
+
+        .tool-card:hover {
+            border-color: var(--accent-gold);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3), 0 0 20px var(--glow-gold);
+        }
+
+        .tool-card-icon {
+            font-size: 2rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .tool-card-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .tool-card-desc {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header {
+                padding: 1rem;
+            }
+
+            .logo-text {
+                font-size: 1.25rem;
+            }
+
+            .header-subtitle {
+                display: none;
+            }
+
+            .nav-container {
+                padding: 0 1rem;
+            }
+
+            .nav-tab {
+                padding: 0.875rem 1rem;
+                font-size: 0.875rem;
+            }
+
+            .welcome-title {
+                font-size: 1.5rem;
+            }
+
+            .tool-cards {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <div class="logo-icon">⚡</div>
+                <div>
+                    <div class="logo-text">Trading Tools Hub</div>
+                    <div class="header-subtitle">Professional Crypto Trading Utilities</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="nav-container">
+        <div class="nav-tabs">
+            <button class="nav-tab active" data-tab="welcome">
+                <span class="nav-tab-icon">🏠</span>
+                Home
+            </button>
+            <button class="nav-tab" data-tab="liquidation">
+                <span class="nav-tab-icon">📊</span>
+                Liquidation Price Calculator
+            </button>
+            <button class="nav-tab" data-tab="kline">
+                <span class="nav-tab-icon">📈</span>
+                Kline Checker
+            </button>
+            <button class="nav-tab" data-tab="macro">
+                <span class="nav-tab-icon">⚙️</span>
+                Macro Generator
+            </button>
+            <button class="nav-tab" data-tab="balance">
+                <span class="nav-tab-icon">💰</span>
+                Balance Log
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Welcome Panel -->
+        <div id="welcome" class="tab-panel active">
+            <div class="welcome-panel">
+                <div class="welcome-icon">🚀</div>
+                <h1 class="welcome-title">Welcome to Trading Tools Hub</h1>
+                <p class="welcome-subtitle">
+                    A collection of professional trading utilities for Binance Futures traders. Select a tool above to get started.
+                </p>
+                <div class="tool-cards">
+                    <div class="tool-card" data-navigate="liquidation">
+                        <div class="tool-card-icon">📊</div>
+                        <div class="tool-card-title">Liquidation Price Calculator</div>
+                        <div class="tool-card-desc">Calculate your liquidation price for isolated and cross margin positions.</div>
+                    </div>
+                    <div class="tool-card" data-navigate="kline">
+                        <div class="tool-card-icon">📈</div>
+                        <div class="tool-card-title">Kline Checker</div>
+                        <div class="tool-card-desc">Validate order execution against historical price data with UTC timestamps.</div>
+                    </div>
+                    <div class="tool-card" data-navigate="macro">
+                        <div class="tool-card-icon">⚙️</div>
+                        <div class="tool-card-title">Macro Generator</div>
+                        <div class="tool-card-desc">Generate slippage, funding fee calculations and liquidation macros.</div>
+                    </div>
+                    <div class="tool-card" data-navigate="balance">
+                        <div class="tool-card-icon">💰</div>
+                        <div class="tool-card-title">Balance Log</div>
+                        <div class="tool-card-desc">Track and analyze your transaction history and balance changes.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Liquidation Calculator -->
+        <div id="liquidation" class="tab-panel">
+            <div class="loading-overlay">
+                <div class="spinner"></div>
+                <div class="loading-text">Loading Liquidation Calculator...</div>
+            </div>
+            <iframe src="Futures liquidation price calculator.html" onload="hideLoading(this)"></iframe>
+        </div>
+
+        <!-- Kline Checker -->
+        <div id="kline" class="tab-panel">
+            <div class="loading-overlay">
+                <div class="spinner"></div>
+                <div class="loading-text">Loading Kline Checker...</div>
+            </div>
+            <iframe src="Klinechecker project.html" onload="hideLoading(this)"></iframe>
+        </div>
+
+        <!-- Macro Generator -->
+        <div id="macro" class="tab-panel">
+            <div class="loading-overlay">
+                <div class="spinner"></div>
+                <div class="loading-text">Loading Macro Generator...</div>
+            </div>
+            <iframe src="Slippage+funding fee+ iquidation macro generator.html" onload="hideLoading(this)"></iframe>
+        </div>
+
+        <!-- Balance Log -->
+        <div id="balance" class="tab-panel">
+            <div class="loading-overlay">
+                <div class="spinner"></div>
+                <div class="loading-text">Loading Balance Log...</div>
+            </div>
+            <iframe src="https://yzyjoji.github.io/transaction-history-breakdown/" onload="hideLoading(this)"></iframe>
+        </div>
+    </main>
+
+    <script>
+        // Tab Navigation
+        const navTabs = document.querySelectorAll('.nav-tab');
+        const tabPanels = document.querySelectorAll('.tab-panel');
+        const toolCards = document.querySelectorAll('.tool-card');
+
+        function switchTab(tabId) {
+            // Update nav tabs
+            navTabs.forEach(tab => {
+                tab.classList.toggle('active', tab.dataset.tab === tabId);
+            });
+
+            // Update panels
+            tabPanels.forEach(panel => {
+                panel.classList.toggle('active', panel.id === tabId);
+            });
+        }
+
+        navTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                switchTab(tab.dataset.tab);
+            });
+        });
+
+        toolCards.forEach(card => {
+            card.addEventListener('click', () => {
+                switchTab(card.dataset.navigate);
+            });
+        });
+
+        // Hide loading overlay when iframe loads
+        function hideLoading(iframe) {
+            const overlay = iframe.parentElement.querySelector('.loading-overlay');
+            if (overlay) {
+                overlay.classList.add('hidden');
+            }
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key >= '1' && e.key <= '5') {
+                const index = parseInt(e.key) - 1;
+                if (navTabs[index]) {
+                    switchTab(navTabs[index].dataset.tab);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
