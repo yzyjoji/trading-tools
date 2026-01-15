@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Binance Futures Margin & Cost Calculator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #000000;
+            --surface: #0a0a0a;
+            --accent: #ffffff;
+            --muted: #444444;
+            --dim: #1a1a1a;
+            --border-color: #333;
+            --highlight: #f0b90b;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            margin: 0;
+            padding: 2rem;
+            background: var(--bg);
+            color: var(--accent);
+            min-height: 100vh;
+            overflow-y: auto;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 2rem;
+            font-weight: 200;
+            font-size: 2rem;
+            color: var(--accent);
+        }
+
+        form {
+            max-width: 800px;
+            margin: 0 auto;
+            background: transparent;
+        }
+
+        .section-title {
+            font-size: 1rem;
+            font-weight: 500;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--dim);
+            color: var(--highlight);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        label {
+            display: block;
+            margin-top: 1rem;
+            margin-bottom: 0.4rem;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--muted);
+        }
+
+        .row {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .col {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid var(--dim);
+            background: var(--surface);
+            color: var(--accent);
+            font-family: 'Inter', monospace;
+            font-size: 0.9rem;
+            box-sizing: border-box;
+            transition: border-color 0.3s;
+        }
+
+        input[type="number"]:focus,
+        select:focus {
+            border-color: var(--muted);
+            outline: none;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .radio-group label {
+            cursor: pointer;
+            color: var(--accent);
+            text-transform: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            opacity: 0.7;
+        }
+
+        .radio-group label:hover {
+            opacity: 1;
+        }
+
+        .radio-group input {
+            margin: 0;
+        }
+
+        button {
+            padding: 1rem;
+            font-size: 0.9rem;
+            background-color: var(--accent);
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            color: var(--bg);
+            text-transform: uppercase;
+            transition: opacity 0.3s;
+            width: 100%;
+            margin-top: 1rem;
+        }
+
+        button.secondary {
+            background-color: var(--surface);
+            color: var(--accent);
+            border: 1px solid var(--dim);
+        }
+
+        button:hover {
+            opacity: 0.8;
+        }
+
+        .order-list {
+            margin-top: 1rem;
+            border: 1px solid var(--dim);
+            padding: 1rem;
+            background: var(--surface);
+        }
+
+        .order-item {
+            display: flex;
+            gap: 0.5rem;
+            align-items: flex-end;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid var(--dim);
+            padding-bottom: 1rem;
+        }
+
+        .order-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .remove-btn {
+            background: transparent;
+            color: #ff4444;
+            width: auto;
+            padding: 0 0.5rem;
+            margin: 0;
+            font-size: 1.2rem;
+        }
+
+        #result {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: var(--surface);
+            border: 1px solid var(--dim);
+            white-space: pre-wrap;
+            font-family: 'Inter', monospace;
+            line-height: 1.6;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .note {
+            font-size: 0.7rem;
+            color: var(--muted);
+            margin-top: 0.2rem;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Margin & Cost Calculator</h1>
+
+    <form id="calcForm">
+        <!-- Global Settings -->
+        <div class="row">
+            <div class="col">
+                <label>Contract Type</label>
+                <div class="radio-group" id="contractTypeGroup">
+                    <label><input type="radio" name="contractType" value="usdm" checked> USDⓈ-M</label>
+                    <label><input type="radio" name="contractType" value="coinm"> Coin-M</label>
+                </div>
+            </div>
+            <div class="col">
+                <label>Position Mode</label>
+                <div class="radio-group" id="posModeGroup">
+                    <label><input type="radio" name="posMode" value="oneway" checked> One-Way</label>
+                    <label><input type="radio" name="posMode" value="hedge"> Hedge Mode</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col">
+                <label for="markPrice">Mark Price</label>
+                <input type="number" id="markPrice" step="any" required placeholder="e.g. 20000">
+            </div>
+            <div class="col">
+                <label for="leverage">Leverage (x)</label>
+                <input type="number" id="leverage" step="1" min="1" max="125" value="10" required>
+            </div>
+        </div>
+
+        <div id="coinmFields" class="row hidden">
+            <div class="col">
+                <label for="contractValue">Contract Value (for Coin-M)</label>
+                <input type="number" id="contractValue" step="any" placeholder="e.g. 100 for BTCUSD">
+                <div class="note">Value of 1 contract in USD</div>
+            </div>
+        </div>
+
+        <!-- Existing Position -->
+        <div class="section-title">Existing Position</div>
+
+        <!-- One-Way Position Inputs -->
+        <div id="onewayPos" class="row">
+            <div class="col">
+                <label for="posSize">Position Size</label>
+                <input type="number" id="posSize" step="any" value="0">
+                <div class="note" id="posSizeUnit">In Coin (BTC, ETH, etc.)</div>
+            </div>
+            <div class="col">
+                <label for="posSide">Side</label>
+                <select id="posSide">
+                    <option value="LONG">Long</option>
+                    <option value="SHORT">Short</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Hedge Mode Position Inputs -->
+        <div id="hedgePos" class="hidden">
+            <div class="row">
+                <div class="col">
+                    <label>Long Position Size</label>
+                    <input type="number" id="longPosSize" step="any" value="0">
+                </div>
+                <div class="col">
+                    <label>Short Position Size</label>
+                    <input type="number" id="shortPosSize" step="any" value="0">
+                </div>
+            </div>
+        </div>
+
+        <!-- Open Orders -->
+        <div class="section-title">Open Orders / New Orders</div>
+        <div id="orderContainer"></div>
+        <button type="button" class="secondary" id="addOrderBtn">+ Add Open Order</button>
+
+        <!-- Cost Calculator Specifics -->
+        <div class="section-title">Cost Calculator (For New Limit Order)</div>
+        <div class="row">
+            <div class="col">
+                <label>Order Size</label>
+                <input type="number" id="costSize" step="any" placeholder="0">
+            </div>
+            <div class="col">
+                <label>Limit Price</label>
+                <input type="number" id="costPrice" step="any" placeholder="0">
+            </div>
+            <div class="col">
+                <label>Side</label>
+                <select id="costSide">
+                    <option value="LONG">Buy/Long</option>
+                    <option value="SHORT">Sell/Short</option>
+                </select>
+            </div>
+        </div>
+
+        <button type="button" id="calcBtn">Calculate Margin & Cost</button>
+    </form>
+
+    <div id="result" class="hidden"></div>
+
+    <footer style="text-align:center; margin-top:3rem; font-size:0.7rem; color:var(--muted);">
+        <a href="index.html" style="color:var(--muted); text-decoration:none;">&larr; Back to Tools</a>
+    </footer>
+
+    <script>
+        // State
+        let orders = [];
+        let orderIdCounter = 0;
+
+        // Elements
+        const contractTypeRadios = document.getElementsByName('contractType');
+        const posModeRadios = document.getElementsByName('posMode');
+        const coinmFields = document.getElementById('coinmFields');
+        const onewayPosDiv = document.getElementById('onewayPos');
+        const hedgePosDiv = document.getElementById('hedgePos');
+        const orderContainer = document.getElementById('orderContainer');
+        const resultDiv = document.getElementById('result');
+        const posSizeUnit = document.getElementById('posSizeUnit');
+
+        // Toggles
+        function updateUI() {
+            const type = Array.from(contractTypeRadios).find(r => r.checked).value;
+            const mode = Array.from(posModeRadios).find(r => r.checked).value;
+
+            // toggle Coin-M fields
+            if (type === 'coinm') {
+                coinmFields.classList.remove('hidden');
+                posSizeUnit.textContent = "In Contracts (Cont)";
+            } else {
+                coinmFields.classList.add('hidden');
+                posSizeUnit.textContent = "In Coin (BTC, ETH, etc.)";
+            }
+
+            // toggle Hedge/One-way
+            if (mode === 'hedge') {
+                onewayPosDiv.classList.add('hidden');
+                hedgePosDiv.classList.remove('hidden');
+            } else {
+                onewayPosDiv.classList.remove('hidden');
+                hedgePosDiv.classList.add('hidden');
+            }
+        }
+
+        contractTypeRadios.forEach(r => r.addEventListener('change', updateUI));
+        posModeRadios.forEach(r => r.addEventListener('change', updateUI));
+        updateUI(); // init
+
+        // Order Management
+        function addOrderRow() {
+            const id = orderIdCounter++;
+            const div = document.createElement('div');
+            div.className = 'order-item';
+            div.id = `order-${id}`;
+
+            div.innerHTML = `
+            <div class="col">
+                <label>Size</label>
+                <input type="number" class="order-size" step="any" required>
+            </div>
+            <div class="col">
+                <label>Limit Price</label>
+                <input type="number" class="order-price" step="any" required>
+            </div>
+            <div class="col">
+                <label>Side</label>
+                <select class="order-side">
+                    <option value="LONG">Buy/Long</option>
+                    <option value="SHORT">Sell/Short</option>
+                </select>
+            </div>
+            <button type="button" class="remove-btn" onclick="removeOrder(${id})">&times;</button>
+        `;
+            orderContainer.appendChild(div);
+        }
+
+        window.removeOrder = function (id) {
+            document.getElementById(`order-${id}`).remove();
+        }
+
+        document.getElementById('addOrderBtn').addEventListener('click', addOrderRow);
+        addOrderRow(); // Add one default row
+
+        // Calculation Logic
+        document.getElementById('calcBtn').addEventListener('click', () => {
+            const type = Array.from(contractTypeRadios).find(r => r.checked).value; // usdm, coinm
+            const mode = Array.from(posModeRadios).find(r => r.checked).value; // oneway, hedge
+            const leverage = parseFloat(document.getElementById('leverage').value);
+            const markPrice = parseFloat(document.getElementById('markPrice').value);
+            const contractVal = (type === 'coinm') ? parseFloat(document.getElementById('contractValue').value) : 1;
+
+            if (!markPrice || !leverage) {
+                alert("Mark Price and Leverage are required.");
+                return;
+            }
+
+            // Helper: Get Notional
+            // USD-M: Size * MarkPrice
+            // Coin-M: Size * ContractVal / MarkPrice (Note: Position Size in contracts)
+            const getNotional = (size) => {
+                if (type === 'usdm') return size * markPrice;
+                return (size * contractVal) / markPrice;
+                // Note: Coin-M Notional is in Coin terms usually? 
+                // Formula says: "Notional Value = Position Size (cal in contract) * Contract Value / Mark Price"
+                // Wait, if result is in USD or Coin?
+                // Usually Margin is in the asset.
+                // But let's follow formula strict.
+                // User's formula: "Notional Value = Position Size (in contract) * Contract Value / Mark Price"
+                // This standardizes to the Base Asset (Coin) typically?
+                // Actually, "In Coin-Margined Futures... Notional Value ... / Mark Price" -> This results in value in COIN.
+                // In USD-Margined... Notional = Size * Mark Price -> Value in USDT.
+                // Perfect.
+            };
+
+            // Helper: Get Order Value
+            // USD-M: Size * LimitPrice
+            // Coin-M: Size * ContractVal / LimitPrice
+            const getOrderValue = (size, limitPrice) => {
+                if (type === 'usdm') return size * limitPrice;
+                return (size * contractVal) / limitPrice;
+            };
+
+            // 1. Gather Orders
+            const domOrders = document.querySelectorAll('.order-item');
+            let bidOrderVal = 0; // Sum of Long Order Values
+            let askOrderVal = 0; // Sum of Short Order Values
+
+            domOrders.forEach(row => {
+                const size = parseFloat(row.querySelector('.order-size').value) || 0;
+                const price = parseFloat(row.querySelector('.order-price').value) || 0;
+                const side = row.querySelector('.order-side').value;
+
+                if (size > 0 && price > 0) {
+                    const val = getOrderValue(size, price);
+                    if (side === 'LONG') bidOrderVal += val;
+                    else askOrderVal += val;
+                }
+            });
+
+            // 2. Gather Positions
+            let posLongNotional = 0;
+            let posShortNotional = 0;
+
+            if (mode === 'oneway') {
+                const size = parseFloat(document.getElementById('posSize').value) || 0;
+                const side = document.getElementById('posSide').value;
+                const notional = getNotional(size);
+                // One-way: "Long and short positions here refer to positions ... whose positionSide = LONG and SHORT"
+                // In One-Way mode, you are either net LONG or net SHORT.
+                if (side === 'LONG') posLongNotional = notional; // Size is positive
+                else posShortNotional = notional; // Treated as "Short Position Notional"
+
+                // Formula says: "One-way mode... Max(Abs(Position Notional + Bid Order Value), Abs(Position Notional - Ask Order Value))"
+                // Wait, "Note: For long positions, the position size is positive, for short positions, the position size is negative."
+                // So Position Notional contains the sign?
+                // "Abs(Position Notional + Bid Order Value)"
+                // If Short: Position Notional is negative.
+                // If Long: Position Notional is positive.
+
+                let rawPosNotional = (side === 'LONG') ? notional : -notional;
+
+                const term1 = Math.abs(rawPosNotional + bidOrderVal);
+                const term2 = Math.abs(rawPosNotional - askOrderVal);
+
+                const marginReq = Math.max(term1, term2) / leverage;
+
+                displayResult(`One-Way Mode Margin Req: ${marginReq.toFixed(4)} ${type === 'usdm' ? 'USDT' : ''}`);
+            }
+            else {
+                // Hedge
+                const longSize = parseFloat(document.getElementById('longPosSize').value) || 0;
+                const shortSize = parseFloat(document.getElementById('shortPosSize').value) || 0;
+
+                const longNotional = getNotional(longSize);
+                const shortNotional = getNotional(shortSize); // Value itself is positive magnitude usually?
+                // Hedge Formula:
+                // Long-Side Req = Max(Abs(Long Pos Notional + Long Bid Order Value), Abs(Long Pos Notional - Long Ask Order Value)) / Lev
+                // Short-Side Req = Max(Abs(Short Pos Notional + Short Bid Order Value), Abs(Short Pos Notional - Short Ask Order Value)) / Lev
+                // Wait, in Hedge mode:
+                // Long Side only cares about Long Pos and... Long Orders? 
+                // "Long-Side Margin Req = Max(Abs(Long Position Notional + Long Bid Order Value), Abs(Long Position Notional - Long Ask Order Value))"
+                // Why would there be a Long "Ask" order?
+                // "Long Ask Order" in Hedge mode implies reducing the Long position? (Sell to Close?)
+                // Usually Hedge mode orders are "Open Long" or "Open Short" or "Close Long" or "Close Short".
+                // Standard "Bid" is Buying. "Ask" is Selling.
+                // "Long Bid Order Value" -> Opening Long? 
+                // "Long Ask Order Value" -> Closing Long?
+                // If user selects "LONG" side in order, is it Open Long?
+                // User tool: "Open Limit Order".
+                // If I am in Hedge Mode, I can place a "Buy Long" or "Sell Short" (Open)
+                // Or "Sell Long" (Close) or "Buy Short" (Close).
+                // This calculator seems slightly ambiguous on Close orders.
+                // The prompt says: "Therefore, only open limit orders occupy margin." -> "Close-position orders... no margin check".
+                // So we assume "Orders" here are OPENING orders.
+                // Bid = Buy = Open Long (in Hedge context for Long Side?).
+                // Wait, A Bid can be Open Long or Close Short.
+                // An Ask can be Open Short or Close Long.
+                // Since Close orders don't use margin, we only care about Open Orders.
+                // So:
+                // Term 1 (Long Side): Max(Abs(LongPos + OpenLongOrders), Abs(LongPos - 0))?
+                // Actually the formula structure implies checking both sides for potential flip?
+                // But if we stick to "Open Orders Only":
+                // Bid Order Value = Open Buy Orders (Open Long).
+                // Ask Order Value = Open Sell Orders (Open Short).
+                // In Hedge Mode:
+                // Long Side Req: accounts for Long Position + Open Long Orders?
+                // Formula: "Long-Side Margin Req ... + Short-Side Margin Req"
+                // Actually, in Hedge Mode, Long and Short are isolated.
+                // So Long Side Req = (Long Pos Notional + Open Long Orders Notional) / Leverage.
+                // Short Side Req = (Short Pos Notional + Open Short Orders Notional) / Leverage.
+                // (Assuming Ask orders on Long side = 0 because they are Close orders).
+                // Let's assume the user enters "Side: Long" -> Open Long. "Side: Short" -> Open Short.
+
+                const longMargin = (longNotional + bidOrderVal) / leverage;
+                const shortMargin = (shortNotional + askOrderVal) / leverage;
+                // Note: I used bidOrderVal for Long and askOrderVal for Short.
+                // This assumes all "Long" orders are Buy/Open Long, and "Short" are Sell/Open Short.
+
+                const totalMargin = longMargin + shortMargin;
+                displayResult(`Hedge Mode Margin Req: ${totalMargin.toFixed(4)} ${type === 'usdm' ? 'USDT' : ''}\n(Long Side: ${longMargin.toFixed(4)} + Short Side: ${shortMargin.toFixed(4)})`);
+            }
+
+            // Cost Calculation
+            // Cost = Initial Margin (for the specific NEW order)
+            // Cost = (Order Size * Order Price) / Leverage (Simplified)
+            const cSize = parseFloat(document.getElementById('costSize').value) || 0;
+            const cPrice = parseFloat(document.getElementById('costPrice').value) || 0;
+
+            if (cSize > 0 && cPrice > 0) {
+                const cVal = getOrderValue(cSize, cPrice);
+                const cCost = cVal / leverage;
+                const currentText = resultDiv.innerText;
+                resultDiv.innerText = currentText + `\n\nNew Order Cost: ${cCost.toFixed(4)} ${type === 'usdm' ? 'USDT' : ''}`;
+            }
+
+            function displayResult(text) {
+                resultDiv.classList.remove('hidden');
+                resultDiv.innerText = text;
+            }
+
+        });
+    </script>
+</body>
+
+</html>
