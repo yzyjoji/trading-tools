@@ -1,420 +1,431 @@
-
-                        <!DOCTYPE html>
-                        <html lang="en">
-                        <head>
-                            <meta charset="UTF-8">
-                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-							<style>
-								body {
-									background-color: white; /* Ensure the iframe has a white background */
-								}
-
-								
-							</style>
-                        </head>
-                        <body>
-                            <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crypto Trade Tools - UTC</title>
     <style>
-        :root {
-            --bg-color: #1e1e1e;
-            --text-color: #e0e0e0;
-            --accent-color: #fcd535; /* Binance Yellow */
-            --secondary-bg: #2b2b2b;
-            --border-color: #444;
-            --success-color: #0ecb81;
-            --danger-color: #f6465d;
-        }
-
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            margin: 0;
-            padding: 20px;
+            background-color: white;
+            /* Ensure the iframe has a white background */
         }
-
-        /* Tab Navigation */
-        .tab-nav {
-            overflow: hidden;
-            border-bottom: 1px solid var(--border-color);
-            margin-bottom: 20px;
-        }
-
-        .tab-button {
-            background-color: inherit;
-            float: left;
-            border: none;
-            outline: none;
-            cursor: pointer;
-            padding: 14px 20px;
-            transition: 0.3s;
-            font-size: 16px;
-            color: #888;
-        }
-
-        .tab-button:hover {
-            background-color: var(--secondary-bg);
-            color: white;
-        }
-
-        .tab-button.active {
-            border-bottom: 2px solid var(--accent-color);
-            color: var(--accent-color);
-            font-weight: bold;
-        }
-
-        /* Content & Layout */
-        .tab-content {
-            display: none;
-            padding: 20px;
-            background-color: var(--secondary-bg);
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-        }
-
-        .active-content { display: block; }
-
-        .form-group { margin-bottom: 15px; }
-
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-size: 0.9em;
-            color: #bbb;
-        }
-
-        input, select {
-            width: 100%;
-            padding: 12px;
-            background-color: #1e1e1e;
-            border: 1px solid var(--border-color);
-            color: white;
-            border-radius: 4px;
-            box-sizing: border-box;
-            font-family: 'Consolas', 'Monaco', monospace; 
-            font-size: 1em;
-        }
-
-        input:focus, select:focus {
-            border-color: var(--accent-color);
-            outline: none;
-        }
-
-        /* Buttons */
-        button.action-btn {
-            background-color: var(--accent-color);
-            color: #000;
-            border: none;
-            padding: 12px 24px;
-            font-weight: bold;
-            cursor: pointer;
-            border-radius: 4px;
-            margin-top: 10px;
-            width: 100%;
-            font-size: 1em;
-        }
-
-        button.action-btn:hover { opacity: 0.9; }
-
-        .copy-btn {
-            background-color: #444;
-            color: white;
-            border: 1px solid #666;
-            padding: 5px 10px;
-            cursor: pointer;
-            border-radius: 4px;
-            font-size: 0.8em;
-            float: right;
-            margin-bottom: 5px;
-        }
-
-        .copy-btn:hover { background-color: #555; }
-        .copy-btn:active { background-color: var(--success-color); border-color: var(--success-color); }
-
-        /* Results Area */
-        #results-area {
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid var(--border-color);
-            display: none;
-        }
-
-        .status-indicator {
-            padding: 15px;
-            border-radius: 4px;
-            margin-bottom: 15px;
-            border: 1px solid transparent;
-        }
-        
-        .status-missed { 
-            background-color: rgba(14, 203, 129, 0.15); 
-            border-color: var(--success-color);
-            color: var(--success-color); 
-        } 
-        
-        .status-hit { 
-            background-color: rgba(246, 70, 93, 0.15); 
-            border-color: var(--danger-color);
-            color: var(--danger-color); 
-        }
-
-        .macro-container {
-            background-color: #1e1e1e;
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
-            padding: 15px;
-            margin-bottom: 20px;
-        }
-
-        .macro-text {
-            white-space: pre-wrap;
-            font-family: 'Segoe UI', sans-serif;
-            line-height: 1.6;
-            color: #ddd;
-        }
-
-        .table-container {
-            max-height: 300px;
-            overflow-y: auto;
-            background: #1e1e1e;
-            border: 1px solid var(--border-color);
-        }
-
-        .price-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.9em;
-        }
-
-        .price-table th, .price-table td {
-            text-align: left;
-            padding: 8px;
-            border-bottom: 1px solid #333;
-        }
-
-        .price-table th {
-            position: sticky;
-            top: 0;
-            background-color: #2b2b2b;
-            color: var(--accent-color);
-        }
-
-        .low-val { color: #f6465d; }
-        .high-val { color: #0ecb81; }
-
     </style>
 </head>
+
 <body>
+    <!DOCTYPE html>
+    <html lang="en">
 
-    <!-- Tab Navigation -->
-    <div class="tab-nav">
-        <button class="tab-button active" onclick="openTab(event, 'Dashboard')">Dashboard</button>
-        <button class="tab-button" onclick="openTab(event, 'KlineChecker')">Kline Checker</button>
-    </div>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Crypto Trade Tools - UTC</title>
+        <style>
+            :root {
+                --bg-color: #1e1e1e;
+                --text-color: #e0e0e0;
+                --accent-color: #fcd535;
+                /* Binance Yellow */
+                --secondary-bg: #2b2b2b;
+                --border-color: #444;
+                --success-color: #0ecb81;
+                --danger-color: #f6465d;
+            }
 
-    <!-- Dashboard Tab -->
-    <div id="Dashboard" class="tab-content active-content">
-        <h2>Welcome</h2>
-        <p>Select the "Kline Checker" tab to analyze price history.</p>
-    </div>
+            body {
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                background-color: var(--bg-color);
+                color: var(--text-color);
+                margin: 0;
+                padding: 20px;
+            }
 
-    <!-- Kline Checker Tab -->
-    <div id="KlineChecker" class="tab-content">
-        <h2>Binance Futures Order Validator (UTC)</h2>
-        <p style="color:#888; font-size: 0.9em;">
-            <strong>IMPORTANT:</strong> This tool forces <strong>UTC Time</strong>. 
-            Ensure timestamps are UTC (e.g., 2025-12-05 15:00:00).
-        </p>
-        
-        <div class="form-group">
-            <label for="symbol">Symbol</label>
-            <input type="text" id="symbol" placeholder="BTCUSDT" value="BTCUSDT">
-        </div>
+            /* Tab Navigation */
+            .tab-nav {
+                overflow: hidden;
+                border-bottom: 1px solid var(--border-color);
+                margin-bottom: 20px;
+            }
 
-        <div style="display: flex; gap: 10px;">
-            <div class="form-group" style="flex: 1;">
-                <label for="orderSide">Order Side</label>
-                <select id="orderSide">
-                    <option value="buy">BUY</option>
-                    <option value="sell">SELL</option>
-                </select>
+            .tab-button {
+                background-color: inherit;
+                float: left;
+                border: none;
+                outline: none;
+                cursor: pointer;
+                padding: 14px 20px;
+                transition: 0.3s;
+                font-size: 16px;
+                color: #888;
+            }
+
+            .tab-button:hover {
+                background-color: var(--secondary-bg);
+                color: white;
+            }
+
+            .tab-button.active {
+                border-bottom: 2px solid var(--accent-color);
+                color: var(--accent-color);
+                font-weight: bold;
+            }
+
+            /* Content & Layout */
+            .tab-content {
+                display: none;
+                padding: 20px;
+                background-color: var(--secondary-bg);
+                border-radius: 8px;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            }
+
+            .active-content {
+                display: block;
+            }
+
+            .form-group {
+                margin-bottom: 15px;
+            }
+
+            label {
+                display: block;
+                margin-bottom: 5px;
+                font-size: 0.9em;
+                color: #bbb;
+            }
+
+            input,
+            select {
+                width: 100%;
+                padding: 12px;
+                background-color: #1e1e1e;
+                border: 1px solid var(--border-color);
+                color: white;
+                border-radius: 4px;
+                box-sizing: border-box;
+                font-family: 'Consolas', 'Monaco', monospace;
+                font-size: 1em;
+            }
+
+            input:focus,
+            select:focus {
+                border-color: var(--accent-color);
+                outline: none;
+            }
+
+            /* Buttons */
+            button.action-btn {
+                background-color: var(--accent-color);
+                color: #000;
+                border: none;
+                padding: 12px 24px;
+                font-weight: bold;
+                cursor: pointer;
+                border-radius: 4px;
+                margin-top: 10px;
+                width: 100%;
+                font-size: 1em;
+            }
+
+            button.action-btn:hover {
+                opacity: 0.9;
+            }
+
+            .copy-btn {
+                background-color: #444;
+                color: white;
+                border: 1px solid #666;
+                padding: 5px 10px;
+                cursor: pointer;
+                border-radius: 4px;
+                font-size: 0.8em;
+                float: right;
+                margin-bottom: 5px;
+            }
+
+            .copy-btn:hover {
+                background-color: #555;
+            }
+
+            .copy-btn:active {
+                background-color: var(--success-color);
+                border-color: var(--success-color);
+            }
+
+            /* Results Area */
+            #results-area {
+                margin-top: 20px;
+                padding-top: 20px;
+                border-top: 1px solid var(--border-color);
+                display: none;
+            }
+
+            .status-indicator {
+                padding: 15px;
+                border-radius: 4px;
+                margin-bottom: 15px;
+                border: 1px solid transparent;
+            }
+
+            .status-missed {
+                background-color: rgba(14, 203, 129, 0.15);
+                border-color: var(--success-color);
+                color: var(--success-color);
+            }
+
+            .status-hit {
+                background-color: rgba(246, 70, 93, 0.15);
+                border-color: var(--danger-color);
+                color: var(--danger-color);
+            }
+
+            .macro-container {
+                background-color: #1e1e1e;
+                border: 1px solid var(--border-color);
+                border-radius: 4px;
+                padding: 15px;
+                margin-bottom: 20px;
+            }
+
+            .macro-text {
+                white-space: pre-wrap;
+                font-family: 'Segoe UI', sans-serif;
+                line-height: 1.6;
+                color: #ddd;
+            }
+
+            .table-container {
+                max-height: 300px;
+                overflow-y: auto;
+                background: #1e1e1e;
+                border: 1px solid var(--border-color);
+            }
+
+            .price-table {
+                width: 100%;
+                border-collapse: collapse;
+                font-size: 0.9em;
+            }
+
+            .price-table th,
+            .price-table td {
+                text-align: left;
+                padding: 8px;
+                border-bottom: 1px solid #333;
+            }
+
+            .price-table th {
+                position: sticky;
+                top: 0;
+                background-color: #2b2b2b;
+                color: var(--accent-color);
+            }
+
+            .low-val {
+                color: #f6465d;
+            }
+
+            .high-val {
+                color: #0ecb81;
+            }
+        </style>
+    </head>
+
+    <body>
+
+
+        <!-- Kline Checker Tab -->
+        <div id="KlineChecker" class="tab-content">
+            <h2>Binance Futures Order Validator (UTC)</h2>
+            <p style="color:#888; font-size: 0.9em;">
+                <strong>IMPORTANT:</strong> This tool forces <strong>UTC Time</strong>.
+                Ensure timestamps are UTC (e.g., 2025-12-05 15:00:00).
+            </p>
+
+            <div class="form-group">
+                <label for="symbol">Symbol</label>
+                <input type="text" id="symbol" placeholder="BTCUSDT" value="BTCUSDT">
             </div>
-            <div class="form-group" style="flex: 1;">
-                <label for="limitPrice">Limit Order Price (USDT)</label>
-                <input type="number" id="limitPrice" placeholder="e.g. 95000.50" step="any">
+
+            <div style="display: flex; gap: 10px;">
+                <div class="form-group" style="flex: 1;">
+                    <label for="orderSide">Order Side</label>
+                    <select id="orderSide">
+                        <option value="buy">BUY</option>
+                        <option value="sell">SELL</option>
+                    </select>
+                </div>
+                <div class="form-group" style="flex: 1;">
+                    <label for="limitPrice">Limit Order Price (USDT)</label>
+                    <input type="number" id="limitPrice" placeholder="e.g. 95000.50" step="any">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="startTime">Trigger Time (UTC)</label>
+                <input type="text" id="startTime" placeholder="YYYY-MM-DD HH:mm:ss">
+            </div>
+
+            <div class="form-group">
+                <label for="endTime">End Time (UTC)</label>
+                <input type="text" id="endTime" placeholder="YYYY-MM-DD HH:mm:ss">
+            </div>
+
+            <button class="action-btn" onclick="checkKlines()">Check Price History</button>
+
+            <div id="results-area">
+
+                <div id="logic-status" class="status-indicator"></div>
+
+                <h3>Analysis Response</h3>
+                <div class="macro-container">
+                    <button class="copy-btn" onclick="copyMacro()">Copy Response</button>
+                    <div style="clear:both;"></div>
+                    <div id="macro-output" class="macro-text"></div>
+                </div>
+
+                <h3 style="margin-top:20px;">
+                    Price Data (1m Candles - UTC)
+                    <button class="copy-btn" onclick="copyTable()">Copy Table Data</button>
+                </h3>
+                <div class="table-container">
+                    <table class="price-table" id="data-table">
+                        <thead>
+                            <tr>
+                                <th>Time (UTC)</th>
+                                <th>Open</th>
+                                <th>High</th>
+                                <th>Low</th>
+                                <th>Close</th>
+                            </tr>
+                        </thead>
+                        <tbody id="price-list-body">
+                            <!-- Data rows go here -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
-        <div class="form-group">
-            <label for="startTime">Trigger Time (UTC)</label>
-            <input type="text" id="startTime" placeholder="YYYY-MM-DD HH:mm:ss">
-        </div>
-
-        <div class="form-group">
-            <label for="endTime">End Time (UTC)</label>
-            <input type="text" id="endTime" placeholder="YYYY-MM-DD HH:mm:ss">
-        </div>
-
-        <button class="action-btn" onclick="checkKlines()">Check Price History</button>
-
-        <div id="results-area">
-            
-            <div id="logic-status" class="status-indicator"></div>
-
-            <h3>Analysis Response</h3>
-            <div class="macro-container">
-                <button class="copy-btn" onclick="copyMacro()">Copy Response</button>
-                <div style="clear:both;"></div>
-                <div id="macro-output" class="macro-text"></div>
-            </div>
-
-            <h3 style="margin-top:20px;">
-                Price Data (1m Candles - UTC)
-                <button class="copy-btn" onclick="copyTable()">Copy Table Data</button>
-            </h3>
-            <div class="table-container">
-                <table class="price-table" id="data-table">
-                    <thead>
-                        <tr>
-                            <th>Time (UTC)</th>
-                            <th>Open</th>
-                            <th>High</th>
-                            <th>Low</th>
-                            <th>Close</th>
-                        </tr>
-                    </thead>
-                    <tbody id="price-list-body">
-                        <!-- Data rows go here -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        // --- Tab Functionality ---
-        function openTab(evt, tabName) {
-            var i, tabcontent, tablinks;
-            tabcontent = document.getElementsByClassName("tab-content");
-            for (i = 0; i < tabcontent.length; i++) {
-                tabcontent[i].style.display = "none";
-            }
-            tablinks = document.getElementsByClassName("tab-button");
-            for (i = 0; i < tablinks.length; i++) {
-                tablinks[i].className = tablinks[i].className.replace(" active", "");
-            }
-            document.getElementById(tabName).style.display = "block";
-            evt.currentTarget.className += " active";
-        }
-
-        // --- STRICT UTC PARSING ---
-        function parseUTCInput(dateString) {
-            if(!dateString) return null;
-            
-            // Clean string
-            const cleanStr = dateString.trim().replace(' ', 'T');
-            
-            // We manually parse YMDHMS to ensure no browser locale interference
-            // Assumes format YYYY-MM-DD HH:mm:ss
-            const regex = /^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2}):(\d{2})$/;
-            const match = dateString.match(regex);
-
-            if (match) {
-                // Date.UTC(year, monthIndex, day, hour, minute, second)
-                return Date.UTC(
-                    parseInt(match[1]), 
-                    parseInt(match[2]) - 1, 
-                    parseInt(match[3]), 
-                    parseInt(match[4]), 
-                    parseInt(match[5]), 
-                    parseInt(match[6])
-                );
-            }
-            
-            // Fallback: Append 'Z' to force UTC if ISO format is close
-            const dateObj = new Date(cleanStr + 'Z');
-            if(!isNaN(dateObj.getTime())) return dateObj.getTime();
-
-            return null;
-        }
-
-        // --- Format UTC for Display ---
-        function formatUTCTime(timestamp) {
-            const d = new Date(timestamp);
-            // format: YYYY-MM-DD HH:mm:ss
-            return d.toISOString().replace('T', ' ').substring(0, 19);
-        }
-
-        // --- Main Logic ---
-        async function checkKlines() {
-            const symbol = document.getElementById('symbol').value.toUpperCase();
-            const orderSide = document.getElementById('orderSide').value; 
-            const limitPriceVal = document.getElementById('limitPrice').value;
-            const startInput = document.getElementById('startTime').value.trim();
-            const endInput = document.getElementById('endTime').value.trim();
-            
-            const resultsArea = document.getElementById('results-area');
-            const listBody = document.getElementById('price-list-body');
-            const macroOutput = document.getElementById('macro-output');
-            const logicStatus = document.getElementById('logic-status');
-
-            // Validation
-            if (!symbol || !startInput || !endInput || !limitPriceVal) {
-                alert("Please fill in all fields.");
-                return;
+        <script>
+            // --- Tab Functionality ---
+            function openTab(evt, tabName) {
+                var i, tabcontent, tablinks;
+                tabcontent = document.getElementsByClassName("tab-content");
+                for (i = 0; i < tabcontent.length; i++) {
+                    tabcontent[i].style.display = "none";
+                }
+                tablinks = document.getElementsByClassName("tab-button");
+                for (i = 0; i < tablinks.length; i++) {
+                    tablinks[i].className = tablinks[i].className.replace(" active", "");
+                }
+                document.getElementById(tabName).style.display = "block";
+                evt.currentTarget.className += " active";
             }
 
-            // Use strict UTC Parser
-            const startTime = parseUTCInput(startInput);
-            const endTime = parseUTCInput(endInput);
-            const limitPrice = parseFloat(limitPriceVal);
+            // --- STRICT UTC PARSING ---
+            function parseUTCInput(dateString) {
+                if (!dateString) return null;
 
-            if (!startTime || !endTime) {
-                alert("Invalid date format. Please use YYYY-MM-DD HH:mm:ss");
-                return;
+                // Clean string
+                const cleanStr = dateString.trim().replace(' ', 'T');
+
+                // We manually parse YMDHMS to ensure no browser locale interference
+                // Assumes format YYYY-MM-DD HH:mm:ss
+                const regex = /^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2}):(\d{2})$/;
+                const match = dateString.match(regex);
+
+                if (match) {
+                    // Date.UTC(year, monthIndex, day, hour, minute, second)
+                    return Date.UTC(
+                        parseInt(match[1]),
+                        parseInt(match[2]) - 1,
+                        parseInt(match[3]),
+                        parseInt(match[4]),
+                        parseInt(match[5]),
+                        parseInt(match[6])
+                    );
+                }
+
+                // Fallback: Append 'Z' to force UTC if ISO format is close
+                const dateObj = new Date(cleanStr + 'Z');
+                if (!isNaN(dateObj.getTime())) return dateObj.getTime();
+
+                return null;
             }
-            if (startTime >= endTime) {
-                alert("Start time must be before End time.");
-                return;
+
+            // --- Format UTC for Display ---
+            function formatUTCTime(timestamp) {
+                const d = new Date(timestamp);
+                // format: YYYY-MM-DD HH:mm:ss
+                return d.toISOString().replace('T', ' ').substring(0, 19);
             }
 
-            // Fetch Data (Binance Futures Last Price)
-            const url = `https://fapi.binance.com/fapi/v1/klines?symbol=${symbol}&interval=1m&startTime=${startTime}&endTime=${endTime}&limit=1000`;
+            // --- Main Logic ---
+            async function checkKlines() {
+                const symbol = document.getElementById('symbol').value.toUpperCase();
+                const orderSide = document.getElementById('orderSide').value;
+                const limitPriceVal = document.getElementById('limitPrice').value;
+                const startInput = document.getElementById('startTime').value.trim();
+                const endInput = document.getElementById('endTime').value.trim();
 
-            try {
-                const response = await fetch(url);
-                if (!response.ok) throw new Error(`Binance API Error`);
-                const data = await response.json();
+                const resultsArea = document.getElementById('results-area');
+                const listBody = document.getElementById('price-list-body');
+                const macroOutput = document.getElementById('macro-output');
+                const logicStatus = document.getElementById('logic-status');
 
-                if (data.length === 0) {
-                    alert("No data found. Check your dates.");
+                // Validation
+                if (!symbol || !startInput || !endInput || !limitPriceVal) {
+                    alert("Please fill in all fields.");
                     return;
                 }
 
-                // Process Data
-                let globalHigh = -Infinity;
-                let globalLow = Infinity;
-                let rowsHTML = "";
+                // Use strict UTC Parser
+                const startTime = parseUTCInput(startInput);
+                const endTime = parseUTCInput(endInput);
+                const limitPrice = parseFloat(limitPriceVal);
 
-                data.forEach(kline => {
-                    // Binance returns start time in ms
-                    const timestamp = kline[0];
-                    const kTimeUTC = formatUTCTime(timestamp);
-                    
-                    const kOpen = parseFloat(kline[1]);
-                    const kHigh = parseFloat(kline[2]);
-                    const kLow = parseFloat(kline[3]);
-                    const kClose = parseFloat(kline[4]);
+                if (!startTime || !endTime) {
+                    alert("Invalid date format. Please use YYYY-MM-DD HH:mm:ss");
+                    return;
+                }
+                if (startTime >= endTime) {
+                    alert("Start time must be before End time.");
+                    return;
+                }
 
-                    if (kHigh > globalHigh) globalHigh = kHigh;
-                    if (kLow < globalLow) globalLow = kLow;
+                // Fetch Data (Binance Futures Last Price)
+                const url = `https://fapi.binance.com/fapi/v1/klines?symbol=${symbol}&interval=1m&startTime=${startTime}&endTime=${endTime}&limit=1000`;
 
-                    rowsHTML += `
+                try {
+                    const response = await fetch(url);
+                    if (!response.ok) throw new Error(`Binance API Error`);
+                    const data = await response.json();
+
+                    if (data.length === 0) {
+                        alert("No data found. Check your dates.");
+                        return;
+                    }
+
+                    // Process Data
+                    let globalHigh = -Infinity;
+                    let globalLow = Infinity;
+                    let rowsHTML = "";
+
+                    data.forEach(kline => {
+                        // Binance returns start time in ms
+                        const timestamp = kline[0];
+                        const kTimeUTC = formatUTCTime(timestamp);
+
+                        const kOpen = parseFloat(kline[1]);
+                        const kHigh = parseFloat(kline[2]);
+                        const kLow = parseFloat(kline[3]);
+                        const kClose = parseFloat(kline[4]);
+
+                        if (kHigh > globalHigh) globalHigh = kHigh;
+                        if (kLow < globalLow) globalLow = kLow;
+
+                        rowsHTML += `
                         <tr>
                             <td>${kTimeUTC}</td>
                             <td>${kOpen}</td>
@@ -423,35 +434,35 @@
                             <td>${kClose}</td>
                         </tr>
                     `;
-                });
+                    });
 
-                // --- LOGIC CHECK ---
-                let shouldHaveExecuted = false;
-                let logicMessage = "";
+                    // --- LOGIC CHECK ---
+                    let shouldHaveExecuted = false;
+                    let logicMessage = "";
 
-                if (orderSide === 'buy') {
-                    // BUY LIMIT: Market Low must be <= Limit
-                    if (globalLow <= limitPrice) {
-                        shouldHaveExecuted = true;
-                        logicMessage = `Reason: The Lowest Price in chart (${globalLow}) was lower than or equal to your Buy Limit (${limitPrice}).`;
+                    if (orderSide === 'buy') {
+                        // BUY LIMIT: Market Low must be <= Limit
+                        if (globalLow <= limitPrice) {
+                            shouldHaveExecuted = true;
+                            logicMessage = `Reason: The Lowest Price in chart (${globalLow}) was lower than or equal to your Buy Limit (${limitPrice}).`;
+                        }
+                    } else {
+                        // SELL LIMIT: Market High must be >= Limit
+                        if (globalHigh >= limitPrice) {
+                            shouldHaveExecuted = true;
+                            logicMessage = `Reason: The Highest Price in chart (${globalHigh}) was higher than or equal to your Sell Limit (${limitPrice}).`;
+                        }
                     }
-                } else {
-                    // SELL LIMIT: Market High must be >= Limit
-                    if (globalHigh >= limitPrice) {
-                        shouldHaveExecuted = true;
-                        logicMessage = `Reason: The Highest Price in chart (${globalHigh}) was higher than or equal to your Sell Limit (${limitPrice}).`;
-                    }
-                }
 
-                resultsArea.style.display = "block";
-                listBody.innerHTML = rowsHTML;
+                    resultsArea.style.display = "block";
+                    listBody.innerHTML = rowsHTML;
 
-                if (!shouldHaveExecuted) {
-                    // SUCCESS: Price was missed
-                    logicStatus.className = "status-indicator status-missed";
-                    logicStatus.innerHTML = `<strong>✓ Logic Verified:</strong> Price on chart never reached your Limit Price.`;
-                    
-                    macroOutput.innerText = `Thank you very much for waiting.
+                    if (!shouldHaveExecuted) {
+                        // SUCCESS: Price was missed
+                        logicStatus.className = "status-indicator status-missed";
+                        logicStatus.innerHTML = `<strong>✓ Logic Verified:</strong> Price on chart never reached your Limit Price.`;
+
+                        macroOutput.innerText = `Thank you very much for waiting.
 
 After your stop limit order was triggered the limit order became active for this duration :
 from : ${startInput} (UTC)
@@ -467,12 +478,12 @@ Although your Stop Price triggered the order, the market price quickly jumped pa
 
 This is normal behavior for Stop Limit orders during fast market movements.`;
 
-                } else {
-                    // WARNING: Price was hit
-                    logicStatus.className = "status-indicator status-hit";
-                    logicStatus.innerHTML = `<strong>⚠ ALERT:</strong> The Limit Price WAS crossed in this timeframe (UTC).<br>${logicMessage}`;
+                    } else {
+                        // WARNING: Price was hit
+                        logicStatus.className = "status-indicator status-hit";
+                        logicStatus.innerHTML = `<strong>⚠ ALERT:</strong> The Limit Price WAS crossed in this timeframe (UTC).<br>${logicMessage}`;
 
-                    macroOutput.innerText = `⚠ CAUTION: DO NOT USE THE STANDARD MACRO.
+                        macroOutput.innerText = `⚠ CAUTION: DO NOT USE THE STANDARD MACRO.
 
 Analysis for ${orderSide.toUpperCase()} Order (UTC Time):
 • Limit Price: ${limitPrice}
@@ -489,64 +500,65 @@ Possible reasons for failure despite price match:
 3. The price wick was too fast for the matching engine to catch your specific volume.
 
 Please escalate or investigate further.`;
+                    }
+
+                } catch (error) {
+                    console.error(error);
+                    alert("Error fetching data.");
+                }
+            }
+
+            // --- FIXED COPY FUNCTIONS (Compatible with local files) ---
+            function copyMacro() {
+                const text = document.getElementById('macro-output').innerText;
+
+                // Use textarea hack for maximum compatibility
+                const el = document.createElement('textarea');
+                el.value = text;
+                document.body.appendChild(el);
+                el.select();
+                document.execCommand('copy');
+                document.body.removeChild(el);
+
+                alert("Response copied!");
+            }
+
+            function copyTable() {
+                const table = document.getElementById("data-table");
+                let rowData = [];
+                let headers = [];
+
+                // Get Headers
+                for (let th of table.rows[0].cells) headers.push(th.innerText);
+                rowData.push(headers.join("\t"));
+
+                // Get Data
+                for (let i = 1; i < table.rows.length; i++) {
+                    let rowCells = [];
+                    for (let cell of table.rows[i].cells) rowCells.push(cell.innerText);
+                    rowData.push(rowCells.join("\t"));
                 }
 
-            } catch (error) {
-                console.error(error);
-                alert("Error fetching data.");
+                const finalText = rowData.join("\n");
+
+                // Use textarea hack for maximum compatibility
+                const el = document.createElement('textarea');
+                el.value = finalText;
+                document.body.appendChild(el);
+                el.select();
+                document.execCommand('copy');
+                document.body.removeChild(el);
+
+                alert("Table copied for Excel!");
             }
-        }
+        </script>
+    </body>
 
-        // --- FIXED COPY FUNCTIONS (Compatible with local files) ---
-        function copyMacro() {
-            const text = document.getElementById('macro-output').innerText;
-            
-            // Use textarea hack for maximum compatibility
-            const el = document.createElement('textarea');
-            el.value = text;
-            document.body.appendChild(el);
-            el.select();
-            document.execCommand('copy');
-            document.body.removeChild(el);
+    </html>
 
-            alert("Response copied!");
-        }
+    <script>
 
-        function copyTable() {
-            const table = document.getElementById("data-table");
-            let rowData = [];
-            let headers = [];
-            
-            // Get Headers
-            for(let th of table.rows[0].cells) headers.push(th.innerText);
-            rowData.push(headers.join("\t"));
-
-            // Get Data
-            for (let i = 1; i < table.rows.length; i++) {
-                let rowCells = [];
-                for(let cell of table.rows[i].cells) rowCells.push(cell.innerText);
-                rowData.push(rowCells.join("\t"));
-            }
-            
-            const finalText = rowData.join("\n");
-
-            // Use textarea hack for maximum compatibility
-            const el = document.createElement('textarea');
-            el.value = finalText;
-            document.body.appendChild(el);
-            el.select();
-            document.execCommand('copy');
-            document.body.removeChild(el);
-
-            alert("Table copied for Excel!");
-        }
     </script>
 </body>
-</html>
 
-							<script>
-                            	
-							</script>
-                        </body>
-                        </html>
-                    
+</html>
