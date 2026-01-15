@@ -416,23 +416,13 @@
                 mOneWayPosDiv.classList.remove('hidden');
                 mHedgePosDiv.classList.add('hidden');
             }
-
-            // Re-render orders because One-way vs Hedge have different order types
-            renderAllOrders();
+            // Clear orders when mode changes to prevent confusion
+            mOrdersDiv.innerHTML = '';
+            addM_Order();
         }
 
         mTypeRadios.forEach(r => r.addEventListener('change', updateM_UI));
         mModeRadios.forEach(r => r.addEventListener('change', updateM_UI));
-
-        function renderAllOrders() {
-            // Keep existing values if possible? 
-            // For simplicity, we just clear for now when switching mode, to avoid invalid state.
-            // But let's try to preserve. 
-            // Actually, One-Way orders are just Buy/Sell. Hedge orders are Open/Close Long/Short.
-            // We'll wipe for simplicity to prevent confusion.
-            mOrdersDiv.innerHTML = '';
-            addM_Order();
-        }
 
         function addM_Order() {
             const id = mOrderCounter++;
@@ -500,12 +490,6 @@
                 return;
             }
 
-            // Helpers
-            // USD-M Notional = Size * Price.
-            // Coin-M Notional (in Contract Terms for formula?)
-            // Formula from Binance: "In Coin-Margined: Notional Value = Position Size  * Contract Value / Mark Price" (This gives Value in Coin)
-            // Order Value: "Order Size * Contract Value / Limit Price" (This gives Value in Coin)
-
             const getPosNotional = (size) => {
                 if (type === 'usdm') return size * markPrice;
                 return (size * contractVal) / markPrice;
@@ -516,15 +500,13 @@
                 return (size * contractVal) / price;
             };
 
-            // 1. Gather Orders
+            // Gather Orders
             let longBidVal = 0; // Buy / Open Long
             let longAskVal = 0; // Sell / Close Long
-            let shortBidVal = 0; // Close Short (Buy)
-            let shortAskVal = 0; // Open Short (Sell)
+            let shortBidVal = 0; // Close Short
+            let shortAskVal = 0; // Open Short
 
-            // Standardizing for One-Way:
-            // "Bid Order Value" = Buy Orders
-            // "Ask Order Value" = Sell Orders
+            let logOrders = [];
 
             const orderRows = mOrdersDiv.querySelectorAll('.order-item');
             orderRows.forEach(row => {
@@ -534,81 +516,117 @@
 
                 if (s > 0 && p > 0) {
                     const val = getOrderValue(s, p);
+                    let category = "";
 
                     if (mode === 'oneway') {
-                        if (t === 'BUY') longBidVal += val;
-                        else longAskVal += val; // Sell = Ask
+                        if (t === 'BUY') { longBidVal += val; category = "Bid/Buy (+)"; }
+                        else { longAskVal += val; category = "Ask/Sell (-)"; }
                     } else {
-                        // Hedge Map
-                        // Open Long -> Increases Long Pos -> Treated as Long Bid for margin check?
-                        // Formula: "Long-Side Margin = Max(Abs(LongPos + LongBid), Abs(LongPos - LongAsk))"
-                        // Long Bid = Orders increasing Long pos (Open Long)
-                        // Long Ask = Orders decreasing Long pos (Close Long)
-                        if (t === 'OPEN_LONG') longBidVal += val;
-                        if (t === 'CLOSE_LONG') longAskVal += val;
-
-                        // Short Side
-                        // "Short-Side Margin = Max(Abs(ShortPos + ShortBid), Abs(ShortPos - ShortAsk))"
-                        // Note: Short Pos is negative?
-                        // "For short positions, the position size is negative"
-                        // Logic:
-                        // Short Bid = Orders closing Short (Buying back) -> Reducting Short Size (Positive impact on negative size?)
-                        // Short Ask = Orders increasing Short (Selling more) -> Making it more negative
-                        if (t === 'CLOSE_SHORT') shortBidVal += val;
-                        if (t === 'OPEN_SHORT') shortAskVal += val;
+                        if (t === 'OPEN_LONG') { longBidVal += val; category = "Long Bid (Open Long)"; }
+                        if (t === 'CLOSE_LONG') { longAskVal += val; category = "Long Ask (Close Long)"; }
+                        if (t === 'CLOSE_SHORT') { shortBidVal += val; category = "Short Bid (Close Short)"; }
+                        if (t === 'OPEN_SHORT') { shortAskVal += val; category = "Short Ask (Open Short)"; }
                     }
+                    logOrders.push(`- Order: ${t}, Size: ${s}, Price: ${p} => Value: ${val.toFixed(2)} (${category})`);
                 }
             });
 
-            // 2. Calculate Logic
-            let resultText = "";
+            // Calculate
+            let resultHtml = "";
+            let logDetails = [`Calculation Details (${mode.toUpperCase()} Mode):`, "-----------------------"];
+            logDetails.push(`Market: ${type.toUpperCase()}, Mark Price: ${markPrice}, Leverage: ${leverage}x`);
+            logDetails.push(...logOrders);
+            logDetails.push("");
 
             if (mode === 'oneway') {
                 const size = parseFloat(document.getElementById('m_ow_size').value) || 0;
                 const side = document.getElementById('m_ow_side').value;
-                let rawPosNotional = getPosNotional(size);
-                if (side === 'SHORT') rawPosNotional = -rawPosNotional;
+                let absPosNotional = getPosNotional(size);
+                let rawPosNotional = (side === 'LONG') ? absPosNotional : -absPosNotional;
 
-                // Formula: Max(Abs(Pos + Bid), Abs(Pos - Ask)) / Lev
-                // Note: Bid/Ask here are unsigned values (Values are magnitudes).
-                // Wait, "Bid Order Value" itself is positive? Formula: "Position Notional + Bid Order Value"
-                // If Pos is -100 (Short), and Bid is +50 (Buy). Sum = -50. Abs = 50. Correct.
-                // If Pos is -100, Ask is 50 (Sell). "Pos - Ask" -> -100 - 50 = -150. Abs = 150. Correct.
+                logDetails.push(`Position: ${side}, Size: ${size} => Notional: ${rawPosNotional.toFixed(2)}`);
+                logDetails.push(`Total Bid Value (Buy): ${longBidVal.toFixed(2)}`);
+                logDetails.push(`Total Ask Value (Sell): ${longAskVal.toFixed(2)}`);
+                logDetails.push("");
 
-                const term1 = Math.abs(rawPosNotional + longBidVal);
-                const term2 = Math.abs(rawPosNotional - longAskVal);
+                // Formula Log
+                const term1Inner = rawPosNotional + longBidVal;
+                const term1 = Math.abs(term1Inner);
+                const term2Inner = rawPosNotional - longAskVal;
+                const term2 = Math.abs(term2Inner);
                 const req = Math.max(term1, term2) / leverage;
 
-                resultText = `Margin Requirement: ${req.toFixed(5)} ${type === 'usdm' ? 'USDT' : 'Coin'}`;
+                logDetails.push(`Formula: Max(Abs(Pos + Bid), Abs(Pos - Ask)) / Lev`);
+                logDetails.push(`Term 1: Abs(${rawPosNotional.toFixed(2)} + ${longBidVal.toFixed(2)}) = Abs(${term1Inner.toFixed(2)}) = ${term1.toFixed(2)}`);
+                logDetails.push(`Term 2: Abs(${rawPosNotional.toFixed(2)} - ${longAskVal.toFixed(2)}) = Abs(${term2Inner.toFixed(2)}) = ${term2.toFixed(2)}`);
+                logDetails.push(`Max(${term1.toFixed(2)}, ${term2.toFixed(2)}) = ${Math.max(term1, term2).toFixed(2)}`);
+                logDetails.push(`Margin Requirement = ${Math.max(term1, term2).toFixed(2)} / ${leverage} = ${req.toFixed(5)}`);
+
+                resultHtml = `<strong>Margin Requirement: ${req.toFixed(5)} ${type === 'usdm' ? 'USDT' : 'Coin'}</strong>`;
             }
             else {
                 // Hedge
                 const lSize = parseFloat(document.getElementById('m_h_longSize').value) || 0;
                 const sSize = parseFloat(document.getElementById('m_h_shortSize').value) || 0;
 
-                const lNotional = getPosNotional(lSize); // Positive
-                const sNotional = -getPosNotional(sSize); // Negative
+                const lNotional = getPosNotional(lSize);
+                const sNotional = -getPosNotional(sSize);
 
-                // Long Side Req
-                const l_term1 = Math.abs(lNotional + longBidVal);
-                const l_term2 = Math.abs(lNotional - longAskVal);
+                logDetails.push(`Long Pos Size: ${lSize} => Notional: ${lNotional.toFixed(2)}`);
+                logDetails.push(`Short Pos Size: ${sSize} => Notional: ${sNotional.toFixed(2)}`);
+                logDetails.push("");
+
+                // Long Side
+                const l_term1Inner = lNotional + longBidVal;
+                const l_term1 = Math.abs(l_term1Inner);
+                const l_term2Inner = lNotional - longAskVal;
+                const l_term2 = Math.abs(l_term2Inner);
                 const longReq = Math.max(l_term1, l_term2) / leverage;
 
-                // Short Side Req
-                const s_term1 = Math.abs(sNotional + shortBidVal); // ShortBid = Close Short
-                const s_term2 = Math.abs(sNotional - shortAskVal); // ShortAsk = Open Short
+                logDetails.push("[Long Side Calculation]");
+                logDetails.push(`Long Bid (Open Long Orders): ${longBidVal.toFixed(2)}`);
+                logDetails.push(`Long Ask (Close Long Orders): ${longAskVal.toFixed(2)}`);
+                logDetails.push(`Term 1: Abs(${lNotional.toFixed(2)} + ${longBidVal.toFixed(2)}) = ${l_term1.toFixed(2)}`);
+                logDetails.push(`Term 2: Abs(${lNotional.toFixed(2)} - ${longAskVal.toFixed(2)}) = ${l_term2.toFixed(2)}`);
+                logDetails.push(`Long Req = Max(${l_term1.toFixed(2)}, ${l_term2.toFixed(2)}) / ${leverage} = ${longReq.toFixed(5)}`);
+                logDetails.push("");
+
+                // Short Side
+                const s_term1Inner = sNotional + shortBidVal;
+                const s_term1 = Math.abs(s_term1Inner);
+                const s_term2Inner = sNotional - shortAskVal;
+                const s_term2 = Math.abs(s_term2Inner);
                 const shortReq = Math.max(s_term1, s_term2) / leverage;
 
-                const total = longReq + shortReq;
+                logDetails.push("[Short Side Calculation]");
+                logDetails.push(`Short Bid (Close Short Orders): ${shortBidVal.toFixed(2)}`);
+                logDetails.push(`Short Ask (Open Short Orders): ${shortAskVal.toFixed(2)}`);
+                logDetails.push(`Term 1: Abs(${sNotional.toFixed(2)} + ${shortBidVal.toFixed(2)}) = Abs(${s_term1Inner.toFixed(2)}) = ${s_term1.toFixed(2)}`);
+                logDetails.push(`Term 2: Abs(${sNotional.toFixed(2)} - ${shortAskVal.toFixed(2)}) = Abs(${s_term2Inner.toFixed(2)}) = ${s_term2.toFixed(2)}`);
+                logDetails.push(`Short Req = Max(${s_term1.toFixed(2)}, ${s_term2.toFixed(2)}) / ${leverage} = ${shortReq.toFixed(5)}`);
 
-                resultText = `Total Margin Requirement: ${total.toFixed(5)}\n\n(Long Side: ${longReq.toFixed(5)} + Short Side: ${shortReq.toFixed(5)})`;
+                const total = longReq + shortReq;
+                logDetails.push("");
+                logDetails.push(`Total Margin = Long (${longReq.toFixed(5)}) + Short (${shortReq.toFixed(5)}) = ${total.toFixed(5)}`);
+
+                resultHtml = `<strong>Total Margin Requirement: ${total.toFixed(5)}</strong><br><small>(Long: ${longReq.toFixed(5)} + Short: ${shortReq.toFixed(5)})</small>`;
             }
 
-            mResult.innerText = resultText;
+            const finalText = logDetails.join("\n");
+            mResult.innerHTML = `
+                <div style="margin-bottom:1rem; font-size:1.1rem;">${resultHtml}</div>
+                <div style="font-size:0.8rem; border-top:1px solid #333; padding-top:1rem; color:#888;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+                         <span>Calculation Details:</span>
+                         <button onclick="copyToClipboard(\`${finalText.replace(/`/g, "\\`")}\`)" style="width:auto; padding:0.2rem 0.5rem; margin:0; font-size:0.7rem;">Copy</button>
+                    </div>
+                    <pre style="white-space:pre-wrap; font-family:monospace; background:#000; padding:0.5rem;">${finalText}</pre>
+                </div>
+            `;
             mResult.classList.remove('hidden');
         });
 
-        updateM_UI(); // init margin UI
+        updateM_UI();
 
         /* ================= COST TOOL LOGIC ================= */
         const cTypeRadios = document.getElementsByName('c_type');
@@ -646,36 +664,17 @@
                 return;
             }
 
-            // Cost = Initial Margin + Open Loss
-            // IM = Order Value / Leverage
-
             let orderVal = 0;
             if (type === 'usdm') orderVal = size * price;
             else orderVal = (size * contractVal) / price;
 
             const initMargin = orderVal / leverage;
 
-            // Open Loss
-            // If Buy: Loss if Price > Mark?
-            // No, if I buy at 20000, and Mark is 19000 -> I am immediately losing.
-            // Entry Price would be Limit Price (assuming filled).
-            // Loss = (Entry - Mark) * Size (for Long)?
-            // Long PNL = (Mark - Entry) * Size.
-            // If PNL is negative -> Loss.
-            // Loss = Max(0, -PNL).
-
-            // USD-M PNL
-            // Long: (Mark - Entry) * Size
-            // Short: (Entry - Mark) * Size
-
             let pnl = 0;
             if (type === 'usdm') {
                 if (side === 'BUY') pnl = (markPrice - price) * size;
                 else pnl = (price - markPrice) * size;
             } else {
-                // Coin-M PNL
-                // Long: Size * ContractVal * (1/Entry - 1/Mark)
-                // Short: Size * ContractVal * (1/Mark - 1/Entry)
                 if (side === 'BUY') pnl = size * contractVal * (1 / price - 1 / markPrice);
                 else pnl = size * contractVal * (1 / markPrice - 1 / price);
             }
@@ -685,16 +684,30 @@
 
             const cur = (type === 'usdm') ? 'USDT' : 'Coin';
 
-            cResult.innerText = `
-                Cost Required: ${totalCost.toFixed(5)} ${cur}
-                ------------------
-                Initial Margin: ${initMargin.toFixed(5)}
-                Open Loss: ${openLoss.toFixed(5)}
+            const logDetails = `Cost Calculation:\n----------------\nInitial Margin (OrderVal/Lev):Val ${orderVal.toFixed(2)} / ${leverage} = ${initMargin.toFixed(4)}\nEst. PnL (Mark vs Limit): ${pnl.toFixed(4)}\nOpen Loss (Max(0, -PnL)): ${openLoss.toFixed(4)}\n\nTotal Cost = ${initMargin.toFixed(4)} + ${openLoss.toFixed(4)} = ${totalCost.toFixed(4)}`;
+
+            cResult.innerHTML = `
+                <div style="margin-bottom:1rem; font-size:1.1rem;"><strong>Cost Required: ${totalCost.toFixed(5)} ${cur}</strong></div>
+                <div style="font-size:0.8rem; border-top:1px solid #333; padding-top:1rem; color:#888;">
+                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+                         <span>Calculation Details:</span>
+                         <button onclick="copyToClipboard(\`${logDetails.replace(/`/g, "\\`")}\`)" style="width:auto; padding:0.2rem 0.5rem; margin:0; font-size:0.7rem;">Copy</button>
+                    </div>
+                    <pre style="white-space:pre-wrap; font-family:monospace; background:#000; padding:0.5rem;">${logDetails}</pre>
+                </div>
              `;
             cResult.classList.remove('hidden');
         });
 
+        // Global Copy Function
+        window.copyToClipboard = (text) => {
+            navigator.clipboard.writeText(text).then(() => {
+                alert("Details copied!");
+            });
+        }
+
         updateC_UI();
+        updateM_UI();
     </script>
 </body>
 
