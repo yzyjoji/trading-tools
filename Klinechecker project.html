@@ -5,180 +5,235 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Crypto Trade Tools - UTC</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-color: #1e1e1e;
-            --text-color: #e0e0e0;
-            --accent-color: #fcd535;
-            /* Binance Yellow */
-            --secondary-bg: #2b2b2b;
-            --border-color: #444;
+            --bg: #000000;
+            --surface: #0a0a0a;
+            --accent: #ffffff;
+            --muted: #444444;
+            --dim: #1a1a1a;
+            --border-color: #333;
+            --highlight: #fcd535;
+            /* Keep Binance yellow as subtle highlight */
             --success-color: #0ecb81;
             --danger-color: #f6465d;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
+            font-family: 'Inter', -apple-system, sans-serif;
+            background-color: var(--bg);
+            color: var(--accent);
             margin: 0;
-            padding: 20px;
+            padding: 2rem;
+            height: 100vh;
+            overflow: hidden;
         }
 
         /* Content & Layout */
         .tab-content {
             display: block;
-            /* Always visible */
-            padding: 20px;
-            background-color: var(--secondary-bg);
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: transparent;
+            padding: 0;
+            box-shadow: none;
+        }
+
+        h2 {
+            font-weight: 300;
+            letter-spacing: -0.02em;
+            margin-bottom: 0.5rem;
+            font-size: 1.5rem;
+        }
+
+        p {
+            font-weight: 300;
+            color: var(--muted);
+            margin-bottom: 2rem;
         }
 
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: 1.5rem;
         }
 
         label {
             display: block;
-            margin-bottom: 5px;
-            font-size: 0.9em;
-            color: #bbb;
+            margin-bottom: 0.5rem;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--muted);
         }
 
         input,
         select {
             width: 100%;
-            padding: 12px;
-            background-color: #1e1e1e;
-            border: 1px solid var(--border-color);
-            color: white;
-            border-radius: 4px;
+            padding: 1rem;
+            background-color: var(--surface);
+            border: 1px solid var(--dim);
+            color: var(--accent);
+            border-radius: 0;
             box-sizing: border-box;
-            font-family: 'Consolas', 'Monaco', monospace;
-            font-size: 1em;
+            font-family: 'Inter', monospace;
+            /* Monospace for numbers/dates if needed, layout mostly Inter */
+            font-size: 0.9rem;
+            transition: border-color 0.3s ease;
         }
 
         input:focus,
         select:focus {
-            border-color: var(--accent-color);
+            border-color: var(--muted);
             outline: none;
         }
 
         /* Buttons */
         button.action-btn {
-            background-color: var(--accent-color);
-            color: #000;
+            background-color: var(--accent);
+            color: var(--bg);
             border: none;
-            padding: 12px 24px;
-            font-weight: bold;
+            padding: 1rem 2rem;
+            font-weight: 500;
             cursor: pointer;
-            border-radius: 4px;
-            margin-top: 10px;
+            border-radius: 0;
+            margin-top: 1rem;
             width: 100%;
-            font-size: 1em;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            transition: opacity 0.3s ease;
         }
 
         button.action-btn:hover {
-            opacity: 0.9;
+            opacity: 0.8;
         }
 
         .copy-btn {
-            background-color: #444;
-            color: white;
-            border: 1px solid #666;
-            padding: 5px 10px;
+            background-color: transparent;
+            color: var(--muted);
+            border: 1px solid var(--dim);
+            padding: 0.4rem 0.8rem;
             cursor: pointer;
-            border-radius: 4px;
-            font-size: 0.8em;
+            border-radius: 0;
+            font-size: 0.7rem;
             float: right;
-            margin-bottom: 5px;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            transition: all 0.3s ease;
         }
 
         .copy-btn:hover {
-            background-color: #555;
-        }
-
-        .copy-btn:active {
-            background-color: var(--success-color);
-            border-color: var(--success-color);
+            border-color: var(--accent);
+            color: var(--accent);
         }
 
         /* Results Area */
         #results-area {
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid var(--border-color);
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--dim);
             display: none;
         }
 
         .status-indicator {
-            padding: 15px;
-            border-radius: 4px;
-            margin-bottom: 15px;
-            border: 1px solid transparent;
+            padding: 1rem;
+            border-radius: 0;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--dim);
+            background: var(--surface);
+            font-size: 0.9rem;
+            font-weight: 300;
         }
 
         .status-missed {
-            background-color: rgba(14, 203, 129, 0.15);
-            border-color: var(--success-color);
-            color: var(--success-color);
+            border-left: 3px solid var(--success-color);
+            color: var(--accent);
         }
 
         .status-hit {
-            background-color: rgba(246, 70, 93, 0.15);
-            border-color: var(--danger-color);
-            color: var(--danger-color);
+            border-left: 3px solid var(--danger-color);
+            color: var(--accent);
         }
 
         .macro-container {
-            background-color: #1e1e1e;
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
-            padding: 15px;
-            margin-bottom: 20px;
+            background-color: var(--surface);
+            border: 1px solid var(--dim);
+            border-radius: 0;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
         }
 
         .macro-text {
             white-space: pre-wrap;
-            font-family: 'Segoe UI', sans-serif;
+            font-family: 'Inter', sans-serif;
             line-height: 1.6;
-            color: #ddd;
+            color: var(--accent);
+            font-size: 0.9rem;
+            font-weight: 300;
         }
 
         .table-container {
             max-height: 300px;
             overflow-y: auto;
-            background: #1e1e1e;
-            border: 1px solid var(--border-color);
+            background: var(--surface);
+            border: 1px solid var(--dim);
+        }
+
+        /* Custom Scrollbar */
+        .table-container::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .table-container::-webkit-scrollbar-track {
+            background: var(--surface);
+        }
+
+        .table-container::-webkit-scrollbar-thumb {
+            background: var(--dim);
+        }
+
+        .table-container::-webkit-scrollbar-thumb:hover {
+            background: var(--muted);
         }
 
         .price-table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 0.9em;
+            font-size: 0.85rem;
         }
 
         .price-table th,
         .price-table td {
             text-align: left;
-            padding: 8px;
-            border-bottom: 1px solid #333;
+            padding: 1rem;
+            border-bottom: 1px solid var(--dim);
         }
 
         .price-table th {
             position: sticky;
             top: 0;
-            background-color: #2b2b2b;
-            color: var(--accent-color);
+            background-color: var(--dim);
+            color: var(--muted);
+            font-weight: 400;
+            text-transform: uppercase;
+            font-size: 0.7rem;
+            letter-spacing: 0.05em;
+        }
+
+        .price-table td {
+            color: var(--accent);
+            font-weight: 300;
         }
 
         .low-val {
-            color: #f6465d;
+            color: var(--danger-color);
         }
 
         .high-val {
-            color: #0ecb81;
+            color: var(--success-color);
         }
     </style>
 </head>
